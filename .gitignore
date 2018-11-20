@@ -172,8 +172,12 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
-# also main idea files just to be sure
-.idea
 
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
+
+# also main idea files just to be sure
+.idea
+
+# BERT output folder
+output

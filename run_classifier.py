@@ -743,11 +743,13 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
 def main(_):
     tf.logging.set_verbosity(tf.logging.INFO)
 
+    from my_classifier import IntentProcessor
     processors = {
         "cola": ColaProcessor,
         "mnli": MnliProcessor,
         "mrpc": MrpcProcessor,
         "xnli": XnliProcessor,
+        "intent": IntentProcessor
     }
 
     if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict:
