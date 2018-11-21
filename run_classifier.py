@@ -342,10 +342,11 @@ class ColaProcessor(DataProcessor):
         """Creates examples for the training and dev sets."""
         examples = []
         for (i, line) in enumerate(lines):
-            # Only the test set has a header
+            # Skip header in test set
             if set_type == "test" and i == 0:
                 continue
-            guid = "%s-%s" % (set_type, i)
+
+            guid = "%s-%s" % (set_type, i)  # example: test-1
             if set_type == "test":
                 text_a = tokenization.convert_to_unicode(line[1])
                 label = "0"
@@ -749,7 +750,7 @@ def main(_):
         "mnli": MnliProcessor,
         "mrpc": MrpcProcessor,
         "xnli": XnliProcessor,
-        "intent": IntentProcessor
+        "askubuntu": IntentProcessor
     }
 
     if not FLAGS.do_train and not FLAGS.do_eval and not FLAGS.do_predict:
@@ -772,6 +773,10 @@ def main(_):
         raise ValueError("Task not found: %s" % (task_name))
 
     processor = processors[task_name]()
+
+    # hacking this script together, lovely
+    if isinstance(processor, IntentProcessor):
+        processor.data_dir = FLAGS.data_dir
 
     label_list = processor.get_labels()
 

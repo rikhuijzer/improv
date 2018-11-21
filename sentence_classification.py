@@ -8,21 +8,22 @@ from utils import get_root
 #
 # BEGIN GLOBAL PARAMETERS
 #
-DEBUG = True
+DEBUG = False
 BERT_BASE_DIR = Path('/home/rik/Downloads/bert_multilingual')
-
+TASK = 'askubuntu'  # askubuntu, ColA, MRPC
 
 #
 # END GLOBAL PARAMETERS
 #
 # TODO: Be able to train and classify intents locally using few epochs.
+# TODO: !!! CHANGE DEV TO REAL DEV DATA INSTEAD OF TEST !!!
 
 
 def classify_sentence():
-    rc.FLAGS.task_name = 'ColA'
+    rc.FLAGS.task_name = TASK
     rc.FLAGS.do_train = False
     rc.FLAGS.do_eval = True
-    rc.FLAGS.data_dir = str(get_root() / 'data' / 'ColA')
+    rc.FLAGS.data_dir = str(get_root() / 'data' / TASK)
     rc.FLAGS.vocab_file = str(BERT_BASE_DIR / 'vocab.txt')
     rc.FLAGS.bert_config_file = str(BERT_BASE_DIR / 'bert_config.json')
     rc.FLAGS.init_checkpoint = str(BERT_BASE_DIR / 'bert_model.ckpt')
@@ -33,6 +34,7 @@ def classify_sentence():
     rc.FLAGS.output_dir = str(get_root() / 'output')
 
     start_time = time.time()
+
     rc.main('')
     running_time = round(((time.time() - start_time) / 60), 2)
     print('Execution took {} minutes'.format(running_time))
