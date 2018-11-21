@@ -20,17 +20,17 @@ TASK = 'askubuntu'  # askubuntu, ColA, MRPC
 
 def classify_sentence():
     rc.FLAGS.task_name = TASK
-    rc.FLAGS.do_train = False
+    rc.FLAGS.do_train = True
     rc.FLAGS.do_eval = True
     rc.FLAGS.data_dir = str(get_root() / 'data' / TASK)
     rc.FLAGS.vocab_file = str(BERT_BASE_DIR / 'vocab.txt')
     rc.FLAGS.bert_config_file = str(BERT_BASE_DIR / 'bert_config.json')
     rc.FLAGS.init_checkpoint = str(BERT_BASE_DIR / 'bert_model.ckpt')
     rc.FLAGS.max_seq_length = 128
-    rc.FLAGS.train_batch_size = 16 if DEBUG else 32  # reducing memory usage on local system
+    rc.FLAGS.train_batch_size = 16  # using too much memory at 32 batches
     rc.FLAGS.learning_rate = 2e-5
-    rc.FLAGS.num_train_epochs = 1e-3 if DEBUG else 3.0
-    rc.FLAGS.output_dir = str(get_root() / 'output')
+    rc.FLAGS.num_train_epochs = 1
+    rc.FLAGS.output_dir = str(get_root() / 'output' / '1_epochs')
 
     start_time = time.time()
 
