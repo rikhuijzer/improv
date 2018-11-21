@@ -16,7 +16,6 @@ TASK = 'askubuntu'  # askubuntu, ColA, MRPC
 # END GLOBAL PARAMETERS
 #
 # TODO: Be able to train and classify intents locally using few epochs.
-# TODO: !!! CHANGE DEV TO REAL DEV DATA INSTEAD OF TEST !!!
 
 
 def classify_sentence():
