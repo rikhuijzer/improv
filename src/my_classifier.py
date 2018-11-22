@@ -1,7 +1,7 @@
 import os
 
-import tokenization
-from run_classifier import DataProcessor, InputExample
+from src import tokenization
+from src.run_classifier import DataProcessor, InputExample
 from typing import Iterable
 import csv
 

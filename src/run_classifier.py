@@ -24,9 +24,7 @@ import os
 
 import tensorflow as tf
 
-import modeling
-import optimization
-import tokenization
+from src import tokenization, optimization, modeling
 
 flags = tf.flags
 
@@ -744,7 +742,7 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
 def main(_):
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    from my_classifier import IntentProcessor
+    from src.my_classifier import IntentProcessor
     processors = {
         "cola": ColaProcessor,
         "mnli": MnliProcessor,

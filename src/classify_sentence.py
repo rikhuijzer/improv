@@ -1,8 +1,8 @@
 import time
 from pathlib import Path
 
-import run_classifier as rc
-from utils import get_root
+from src import run_classifier as rc
+from src.utils import get_root
 
 
 #
@@ -14,8 +14,6 @@ TASK = 'askubuntu'  # askubuntu, ColA, MRPC
 
 #
 # END GLOBAL PARAMETERS
-#
-# TODO: Be able to train and classify intents locally using few epochs.
 
 
 def classify_sentence():
