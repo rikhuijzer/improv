@@ -1,16 +1,20 @@
+import csv
 import os
+from datetime import datetime
+from pathlib import Path
+from typing import Iterable
+
+import tensorflow as tf
 
 from src import tokenization
-from src.run_classifier import DataProcessor, InputExample
-from typing import Iterable
-import csv
-from pathlib import Path
-from src.run_classifier import convert_examples_to_features
 from src.config import Params
-from datetime import datetime
-from src.run_classifier import input_fn_builder, convert_examples_to_features, model_fn_builder
-import tensorflow as tf
 from src.modeling import BertConfig
+from src.run_classifier import DataProcessor, InputExample
+from src.run_classifier import (
+    input_fn_builder, convert_examples_to_features, model_fn_builder,
+    file_based_convert_examples_to_features, file_based_input_fn_builder
+)
+import numpy as np
 
 
 def get_model_and_estimator(params: Params, processor):
@@ -93,6 +97,43 @@ def evaluate(params: Params, processor, tokenizer, estimator):
         for key in sorted(result.keys()):
             print('  {} = {}'.format(key, str(result[key])))
             writer.write("%s = %s\n" % (key, str(result[key])))
+
+
+def predict(params: Params, processor, tokenizer, estimator):
+    predict_examples = processor.get_test_examples(params.data_dir)
+    predict_file = os.path.join(params.output_dir, "predict.tf_record")
+    file_based_convert_examples_to_features(predict_examples, processor.get_labels(),
+                                            params.max_seq_length, tokenizer,
+                                            predict_file)
+
+    tf.logging.info("***** Running prediction*****")
+    tf.logging.info("  Num examples = %d", len(predict_examples))
+    tf.logging.info("  Batch size = %d", params.predict_batch_size)
+
+    # if USE_TPU:
+    # Warning: According to tpu_estimator.py Prediction on TPU is an
+    # experimental feature and hence not supported here
+    # raise ValueError("Prediction in TPU not supported")
+
+    predict_drop_remainder = params.use_tpu
+    predict_input_fn = file_based_input_fn_builder(
+        input_file=predict_file,
+        seq_length=params.max_seq_length,
+        is_training=False,
+        drop_remainder=predict_drop_remainder)
+
+    result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
+
+    label_list = processor.get_labels()  # used for label_list[max_class] this might be wrong
+
+    output_predict_file = os.path.join(params.output_dir, "test_results.tsv")
+    with tf.gfile.GFile(output_predict_file, 'w') as writer:
+        tf.logging.info("***** Predict results *****")
+        for prediction in result:
+            max_class = prediction.argmax()  # get index for highest confidence prediction
+            output_line = str(max_class) + '\t' + label_list[max_class] + '\t' + '\t'.join(
+                str(class_probability) for class_probability in prediction)
+            writer.write(output_line + '\n')
 
 
 def get_intents(data_dir: Path) -> Iterable[str]:

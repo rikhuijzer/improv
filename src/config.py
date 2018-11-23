@@ -50,7 +50,7 @@ def get_debug_params() -> Params:
         max_seq_length=128,
         do_train=False,
         do_eval=False,
-        do_predict=False,
+        do_predict=True,
         train_batch_size=1,
         eval_batch_size=8,
         predict_batch_size=8,
@@ -60,7 +60,7 @@ def get_debug_params() -> Params:
         save_checkpoints_steps=1000,
         iterations_per_loop=1000,
         use_tpu=False,
-        tpu_name='',  # is used as tpu_address
+        tpu_name='',  # is used as tpu_address in original Colab script
         tpu_zone=None,
         gcp_project=None,
         master=None,

@@ -2,7 +2,7 @@ import tensorflow as tf
 
 import src.tokenization as tokenization
 from src.config import get_debug_params
-from src.my_classifier import IntentProcessor, evaluate, get_model_and_estimator, train
+from src.my_classifier import IntentProcessor, get_model_and_estimator, evaluate, train, predict
 
 
 def main():
@@ -18,7 +18,11 @@ def main():
     if params.do_train:
         train(params, processor, tokenizer, estimator)
 
-    evaluate(params, processor, tokenizer, estimator)
+    if params.do_eval:
+        evaluate(params, processor, tokenizer, estimator)
+
+    if params.do_predict:
+        predict(params, processor, tokenizer, estimator)
 
 
 if __name__ == '__main__':
