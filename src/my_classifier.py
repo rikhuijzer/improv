@@ -127,6 +127,7 @@ def predict(params: Params, processor, tokenizer, estimator):
     label_list = processor.get_labels()  # used for label_list[max_class] this might be wrong
 
     output_predict_file = os.path.join(params.output_dir, "test_results.tsv")
+    y_pred = []
     with tf.gfile.GFile(output_predict_file, 'w') as writer:
         tf.logging.info("***** Predict results *****")
         for prediction in result:
@@ -134,6 +135,8 @@ def predict(params: Params, processor, tokenizer, estimator):
             output_line = str(max_class) + '\t' + label_list[max_class] + '\t' + '\t'.join(
                 str(class_probability) for class_probability in prediction)
             writer.write(output_line + '\n')
+            y_pred.append(label_list[max_class])
+    return y_pred
 
 
 def get_intents(data_dir: Path) -> Iterable[str]:
