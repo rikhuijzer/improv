@@ -179,5 +179,5 @@ fabric.properties
 # also main idea files just to be sure
 .idea
 
-# BERT output folder
-output
+# generated files
+generated

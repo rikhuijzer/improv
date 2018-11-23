@@ -1,27 +1,30 @@
 import tensorflow as tf
 from pathlib import Path
-from src.utils import get_root
+from src.utils import get_project_root
 import os
+import datetime
+from src.utils import get_project_root
 
 
 def main():
     USE_TPU = False
-    TASK = 'chatbot'
+    TASK = 'askubuntu'
 
-    TASK_DATA_DIR = 'data/' + TASK
+    TASK_DATA_DIR = get_project_root() / 'data' / TASK
 
     # Available pretrained model checkpoints:
     #   uncased_L-12_H-768_A-12: uncased BERT base model
     #   uncased_L-24_H-1024_A-16: uncased BERT large model
     #   cased_L-12_H-768_A-12: cased BERT large model
     BERT_MODEL = 'uncased_L-12_H-768_A-12'
-    BERT_PRETRAINED_DIR = 'C:\\Users\\Rik\\Downloads\\' + BERT_MODEL
+    BERT_PRETRAINED_DIR = Path.home() / 'Downloads' / 'uncased_L-12_H-768_A-12'
 
     OUTPUT_DIR_NAME = '50_epochs_large'
     # OUTPUT_DIR = 'gs://{}/bert/models/{}/{}'.format(BUCKET, TASK, OUTPUT_DIR_NAME)
-    OUTPUT_DIR = get_root() / 'generated' / TASK / OUTPUT_DIR_NAME
-    tf.gfile.MakeDirs(OUTPUT_DIR)
+    OUTPUT_DIR = get_project_root() / 'generated' / TASK / OUTPUT_DIR_NAME
+    tf.gfile.MakeDirs(str(OUTPUT_DIR))
     TPU_ADDRESS = ''
+    do_train = False
 
     '''
     Define model and estimator
@@ -35,17 +38,17 @@ def main():
     from src.my_classifier import IntentProcessor
 
     # Model Hyper Parameters
-    TRAIN_BATCH_SIZE = 1
+    TRAIN_BATCH_SIZE = 1  # can't go lower
     EVAL_BATCH_SIZE = 1
     LEARNING_RATE = 2e-5
-    NUM_TRAIN_EPOCHS = 1e-6
+    NUM_TRAIN_EPOCHS = 1
     WARMUP_PROPORTION = 0.1
     MAX_SEQ_LENGTH = 128
     # Model configs
     SAVE_CHECKPOINTS_STEPS = 1000
     ITERATIONS_PER_LOOP = 1000
     NUM_TPU_CORES = 8
-    VOCAB_FILE = os.path.join(BERT_PRETRAINED_DIR, 'vocab.txt')
+    VOCAB_FILE = BERT_PRETRAINED_DIR / 'vocab.txt'
     CONFIG_FILE = os.path.join(BERT_PRETRAINED_DIR, 'bert_config.json')
     INIT_CHECKPOINT = os.path.join(BERT_PRETRAINED_DIR, 'bert_model.ckpt')
     DO_LOWER_CASE = BERT_MODEL.startswith('uncased')
@@ -54,7 +57,7 @@ def main():
     processor.data_dir = TASK_DATA_DIR
 
     label_list = processor.get_labels()
-    tokenizer = tokenization.FullTokenizer(vocab_file=VOCAB_FILE, do_lower_case=DO_LOWER_CASE)
+    tokenizer = tokenization.FullTokenizer(vocab_file=str(VOCAB_FILE), do_lower_case=DO_LOWER_CASE)
 
     # If TPU is not available, this will fall back to normal Estimator on CPU or GPU.
     tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(TPU_ADDRESS)
@@ -92,24 +95,23 @@ def main():
     '''
     Train the model
     '''
-    import datetime
+    if do_train:
+        # Train the model.
+        train_features = run_classifier.convert_examples_to_features(
+            train_examples, label_list, MAX_SEQ_LENGTH, tokenizer)
+        print('***** Started training at {} *****'.format(datetime.datetime.now()))
+        print('  Num examples = {}'.format(len(train_examples)))
+        print('  Batch size = {}'.format(TRAIN_BATCH_SIZE))
+        tf.logging.info("  Num steps = %d", num_train_steps)
 
-    # Train the model.
-    train_features = run_classifier.convert_examples_to_features(
-        train_examples, label_list, MAX_SEQ_LENGTH, tokenizer)
-    print('***** Started training at {} *****'.format(datetime.datetime.now()))
-    print('  Num examples = {}'.format(len(train_examples)))
-    print('  Batch size = {}'.format(TRAIN_BATCH_SIZE))
-    tf.logging.info("  Num steps = %d", num_train_steps)
-
-    # see run_classifier.convert_single_example for feature creation
-    train_input_fn = run_classifier.input_fn_builder(
-        features=train_features,
-        seq_length=MAX_SEQ_LENGTH,
-        is_training=True,
-        drop_remainder=True)
-    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
-    print('***** Finished training at {} *****'.format(datetime.datetime.now()))
+        # see run_classifier.convert_single_example for feature creation
+        train_input_fn = run_classifier.input_fn_builder(
+            features=train_features,
+            seq_length=MAX_SEQ_LENGTH,
+            is_training=True,
+            drop_remainder=True)
+        estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
+        print('***** Finished training at {} *****'.format(datetime.datetime.now()))
 
     '''
     Eval
@@ -132,7 +134,7 @@ def main():
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
     print('***** Finished evaluation at {} *****'.format(datetime.datetime.now()))
     output_eval_file = OUTPUT_DIR / 'eval_results.txt'
-    with tf.gfile.GFile(output_eval_file, "w") as writer:
+    with tf.gfile.GFile(str(output_eval_file), "w") as writer:
         print("***** Eval results *****")
         for key in sorted(result.keys()):
             print('  {} = {}'.format(key, str(result[key])))

@@ -4,10 +4,11 @@ from src import tokenization
 from src.run_classifier import DataProcessor, InputExample
 from typing import Iterable
 import csv
+from pathlib import Path
 
 
-def get_intents(data_dir) -> Iterable[str]:
-    with open(str(data_dir + '/test.tsv'), 'r', encoding='utf8', newline='') as tsv_file:
+def get_intents(data_dir: Path) -> Iterable[str]:
+    with open(str(data_dir / 'test.tsv'), 'r', encoding='utf8', newline='') as tsv_file:
         tsv_reader = csv.reader(tsv_file, delimiter='\t', lineterminator='\n')
 
         for row in tsv_reader:
@@ -16,7 +17,7 @@ def get_intents(data_dir) -> Iterable[str]:
 
 class IntentProcessor(DataProcessor):
     """Processor for the intent classification data set."""
-    data_dir: str
+    data_dir: Path
 
     def get_train_examples(self, data_dir):
         """See base class."""
