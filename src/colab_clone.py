@@ -21,6 +21,7 @@ def main():
     if params.do_eval:
         evaluate(params, processor, tokenizer, estimator)
 
+    # note that predictions are non-deterministic
     if params.do_predict:
         predict(params, processor, tokenizer, estimator)
 
