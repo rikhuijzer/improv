@@ -57,7 +57,7 @@ def get_debug_params() -> Params:
         eval_batch_size=8,
         predict_batch_size=8,
         learning_rate=2e-5,
-        num_train_epochs=3.0,
+        num_train_epochs=2.0,
         warmup_proportion=0.1,
         save_checkpoints_steps=1000,
         iterations_per_loop=1000,

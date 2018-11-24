@@ -27,3 +27,8 @@ def get_y_true(file: Path) -> List[str]:
 def get_rounded_f1(file: Path, y_pred: List[str], average='micro') -> float:
     """Returns rounded f1 score"""
     return round(f1_score(get_y_true(file), y_pred, average=average), 3)
+
+
+def print_eval_results(results: List[dict]):
+    for result in results:
+        print(result)

@@ -130,11 +130,14 @@ def evaluate(params: Params, estimator):
 
 
 def train_eval(params: Params, estimator):
-    results = []
+    results: List[dict] = []
     for epoch in range(int(params.num_train_epochs)):
         tf.logging.info('Starting training for epoch: {}'.format(epoch))
         train(params._replace(num_train_epochs=1), estimator)
         results.append(evaluate(params, estimator))
+
+    for result in results:
+        print(result)
     return results
 
 
