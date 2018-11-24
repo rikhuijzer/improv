@@ -500,7 +500,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         """The `model_fn` for TPUEstimator."""
 
         # Test for TensorBoard
-        tf.summary.scalar('My_Loss', -1)
+        # tf.summary.scalar('My_Loss', -1)
+        # error: Cannot use 'My_Loss' as input to 'Merge_2/MergeSummary' because 'My_Loss' is in a while loop.
 
         tf.logging.info("*** Features ***")
         for name in sorted(features.keys()):

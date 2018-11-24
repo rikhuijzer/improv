@@ -11,6 +11,7 @@ def main():
 
     tf.gfile.MakeDirs(str(params.output_dir))
 
+    # Colab script starts here, don't forget the imports
     model_fn, estimator = get_model_and_estimator(params)
 
     if params.do_train:
