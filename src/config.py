@@ -60,7 +60,7 @@ def get_debug_params() -> Params:
         save_checkpoints_steps=1000,
         iterations_per_loop=1000,
         use_tpu=False,
-        tpu_name='',  # is used as tpu_address in original Colab script
+        tpu_name='',  # is used as tpu_address in Colab script
         tpu_zone=None,
         gcp_project=None,
         master=None,

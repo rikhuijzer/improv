@@ -6,7 +6,6 @@ from typing import Iterable, List
 
 import numpy as np
 import tensorflow as tf
-from sklearn.metrics import f1_score
 from tensorflow.python.training import training_util
 from tensorflow.python.training.basic_session_run_hooks import SecondOrStepTimer
 from tensorflow.python.training.session_run_hook import SessionRunHook, SessionRunArgs
@@ -19,25 +18,25 @@ from src.run_classifier import (
     input_fn_builder, convert_examples_to_features, model_fn_builder,
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
-from src.utils import convert_result_pred
+from src.utils import convert_result_pred, get_rounded_f1
+from src.tokenization import FullTokenizer
+from functools import lru_cache
 
 
-def get_f1_score(params: Params, y_pred: List[str]) -> float:
-    """Returns micro f1 score for predictions when compared with test.tsv"""
-    y_true = []
-
-    file = params.data_dir / "test.tsv"
-    with open(str(file), 'r') as f:
-        for row in f:
-            row = row.replace('\n', '')
-            lines = row.split('\t')
-            y_true.append(lines[1])
-
-    score = f1_score(y_true, y_pred, average='micro')
-    return round(score, 3)
+@lru_cache(maxsize=1)
+def get_tokenizer(params: Params) -> FullTokenizer:
+    return FullTokenizer(vocab_file=str(params.vocab_file), do_lower_case=params.do_lower_case)
 
 
-def get_model_and_estimator(params: Params, processor):
+@lru_cache(maxsize=1)
+def get_processor(params: Params) -> DataProcessor:
+    processor = IntentProcessor()
+    processor.data_dir = params.data_dir
+    return processor
+
+
+def get_model_and_estimator(params: Params):
+    processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
     num_warmup_steps = int(num_train_steps * params.warmup_proportion)
@@ -73,11 +72,12 @@ def get_model_and_estimator(params: Params, processor):
     return model_fn, estimator
 
 
-def train(params: Params, processor, tokenizer, estimator, hook):
+def train(params: Params, estimator):
+    processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
     train_features = convert_examples_to_features(
-        train_examples, processor.get_labels(), params.max_seq_length, tokenizer)
+        train_examples, processor.get_labels(), params.max_seq_length, get_tokenizer(params))
     print('***** Started training at {} *****'.format(datetime.now()))
     print('  Num examples = {}'.format(len(train_examples)))
     print('  Batch size = {}'.format(params.train_batch_size))
@@ -89,14 +89,17 @@ def train(params: Params, processor, tokenizer, estimator, hook):
         seq_length=params.max_seq_length,
         is_training=True,
         drop_remainder=True)
+
+    hook = MetadataHook(save_steps=1, output_dir=params.output_dir)
     estimator.train(input_fn=train_input_fn, max_steps=num_train_steps, hooks=[hook])
     print('***** Finished training at {} *****'.format(datetime.now()))
 
 
-def evaluate(params: Params, processor, tokenizer, estimator):
+def evaluate(params: Params, estimator):
+    processor = get_processor(params)
     eval_examples = processor.get_dev_examples(params.data_dir)
     eval_features = convert_examples_to_features(
-        eval_examples, processor.get_labels(), params.max_seq_length, tokenizer)
+        eval_examples, processor.get_labels(), params.max_seq_length, get_tokenizer(params))
     print('***** Started evaluation at {} *****'.format(datetime.now()))
     print('  Num examples = {}'.format(len(eval_examples)))
     print('  Batch size = {}'.format(params.eval_batch_size))
@@ -118,16 +121,15 @@ def evaluate(params: Params, processor, tokenizer, estimator):
             writer.write("%s = %s\n" % (key, str(result[key])))
 
 
-def predict(params: Params, processor, tokenizer, estimator) -> List[str]:
-    if params.use_tpu:
-        # Warning: According to tpu_estimator.py Prediction on TPU is an
-        # experimental feature and hence not supported here
-        raise ValueError("Prediction in TPU not supported")
+def predict(params: Params) -> List[str]:
+    params = params._replace(use_tpu=False)  # BERT code warns against using TPU for predictions.
+    model_fn, estimator = get_model_and_estimator(params)
 
+    processor = get_processor(params)
     predict_examples = processor.get_test_examples(params.data_dir)
     predict_file = os.path.join(params.output_dir, "predict.tf_record")
     file_based_convert_examples_to_features(predict_examples, processor.get_labels(),
-                                            params.max_seq_length, tokenizer,
+                                            params.max_seq_length, get_tokenizer(params),
                                             predict_file)
 
     tf.logging.info("***** Running prediction*****")
@@ -143,7 +145,9 @@ def predict(params: Params, processor, tokenizer, estimator) -> List[str]:
 
     result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
     label_list = processor.get_labels()  # used for label_list[max_class] this might be wrong
-    return convert_result_pred(result, label_list)
+    y_pred = convert_result_pred(result, label_list)
+    print('f1 score: {}'.format(get_rounded_f1(params.data_dir / 'test.tsv', y_pred)))
+    return y_pred
 
 
 def get_intents(data_dir: Path) -> Iterable[str]:
