@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, List
 
@@ -18,9 +19,8 @@ from src.run_classifier import (
     input_fn_builder, convert_examples_to_features, model_fn_builder,
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
-from src.utils import convert_result_pred, get_rounded_f1
 from src.tokenization import FullTokenizer
-from functools import lru_cache
+from src.utils import convert_result_pred, get_rounded_f1
 
 
 @lru_cache(maxsize=1)
@@ -73,11 +73,6 @@ def get_model_and_estimator(params: Params):
 
 
 def train(params: Params, estimator, hook=None):
-    summary_hook = SummarySaverHook(
-        1,  # save every n steps
-        output_dir='/tmp/tf',
-        summary_op=tf.summary.merge_all())
-
     processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
@@ -205,6 +200,7 @@ class IntentProcessor(DataProcessor):
 class MetadataHook(SessionRunHook):
     """hook, based on ProfilerHook, to have the estimator output the run metadata into the model directory
         source: https://stackoverflow.com/questions/45719176"""
+
     def __init__(self, save_steps=None, save_secs=None, output_dir=""):
         self._output_tag = "step-{}"
         self._output_dir = output_dir
