@@ -25,6 +25,7 @@ import os
 import tensorflow as tf
 
 from src import tokenization, optimization, modeling
+from sklearn.metrics import f1_score
 
 
 class InputExample(object):
@@ -498,6 +499,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
         """The `model_fn` for TPUEstimator."""
 
+        # Test for TensorBoard
+        tf.summary.scalar('My_Loss', -1)
+
         tf.logging.info("*** Features ***")
         for name in sorted(features.keys()):
             tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
@@ -554,6 +558,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
                 accuracy = tf.metrics.accuracy(label_ids, predictions)
                 loss = tf.metrics.mean(per_example_loss)
+
+                # Note that this information is sent to TensorBoard (tf.summary).
                 return {
                     "eval_accuracy": accuracy,
                     "eval_loss": loss,
@@ -568,6 +574,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         else:
             output_spec = tf.contrib.tpu.TPUEstimatorSpec(
                 mode=mode, predictions=probabilities, scaffold_fn=scaffold_fn)
+
         return output_spec
 
     return model_fn

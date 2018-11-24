@@ -180,4 +180,4 @@ fabric.properties
 .idea
 
 # generated files
-generated
+tmp

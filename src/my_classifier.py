@@ -2,9 +2,14 @@ import csv
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List
 
+import numpy as np
 import tensorflow as tf
+from sklearn.metrics import f1_score
+from tensorflow.python.training import training_util
+from tensorflow.python.training.basic_session_run_hooks import SecondOrStepTimer
+from tensorflow.python.training.session_run_hook import SessionRunHook, SessionRunArgs
 
 from src import tokenization
 from src.config import Params
@@ -14,7 +19,22 @@ from src.run_classifier import (
     input_fn_builder, convert_examples_to_features, model_fn_builder,
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
-import numpy as np
+from src.utils import convert_result_pred
+
+
+def get_f1_score(params: Params, y_pred: List[str]) -> float:
+    """Returns micro f1 score for predictions when compared with test.tsv"""
+    y_true = []
+
+    file = params.data_dir / "test.tsv"
+    with open(str(file), 'r') as f:
+        for row in f:
+            row = row.replace('\n', '')
+            lines = row.split('\t')
+            y_true.append(lines[1])
+
+    score = f1_score(y_true, y_pred, average='micro')
+    return round(score, 3)
 
 
 def get_model_and_estimator(params: Params, processor):
@@ -53,7 +73,7 @@ def get_model_and_estimator(params: Params, processor):
     return model_fn, estimator
 
 
-def train(params: Params, processor, tokenizer, estimator):
+def train(params: Params, processor, tokenizer, estimator, hook):
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
     train_features = convert_examples_to_features(
@@ -69,12 +89,11 @@ def train(params: Params, processor, tokenizer, estimator):
         seq_length=params.max_seq_length,
         is_training=True,
         drop_remainder=True)
-    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
+    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps, hooks=[hook])
     print('***** Finished training at {} *****'.format(datetime.now()))
 
 
 def evaluate(params: Params, processor, tokenizer, estimator):
-    # Eval the model.
     eval_examples = processor.get_dev_examples(params.data_dir)
     eval_features = convert_examples_to_features(
         eval_examples, processor.get_labels(), params.max_seq_length, tokenizer)
@@ -91,7 +110,7 @@ def evaluate(params: Params, processor, tokenizer, estimator):
         drop_remainder=True)
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
     print('***** Finished evaluation at {} *****'.format(datetime.now()))
-    output_eval_file = params.output_dir / 'eval_results.txt'
+    output_eval_file = params.output_dir + '/eval_results.txt'
     with tf.gfile.GFile(str(output_eval_file), "w") as writer:
         print("***** Eval results *****")
         for key in sorted(result.keys()):
@@ -99,7 +118,12 @@ def evaluate(params: Params, processor, tokenizer, estimator):
             writer.write("%s = %s\n" % (key, str(result[key])))
 
 
-def predict(params: Params, processor, tokenizer, estimator):
+def predict(params: Params, processor, tokenizer, estimator) -> List[str]:
+    if params.use_tpu:
+        # Warning: According to tpu_estimator.py Prediction on TPU is an
+        # experimental feature and hence not supported here
+        raise ValueError("Prediction in TPU not supported")
+
     predict_examples = processor.get_test_examples(params.data_dir)
     predict_file = os.path.join(params.output_dir, "predict.tf_record")
     file_based_convert_examples_to_features(predict_examples, processor.get_labels(),
@@ -110,11 +134,6 @@ def predict(params: Params, processor, tokenizer, estimator):
     tf.logging.info("  Num examples = %d", len(predict_examples))
     tf.logging.info("  Batch size = %d", params.predict_batch_size)
 
-    # if USE_TPU:
-    # Warning: According to tpu_estimator.py Prediction on TPU is an
-    # experimental feature and hence not supported here
-    # raise ValueError("Prediction in TPU not supported")
-
     predict_drop_remainder = params.use_tpu
     predict_input_fn = file_based_input_fn_builder(
         input_file=predict_file,
@@ -123,20 +142,8 @@ def predict(params: Params, processor, tokenizer, estimator):
         drop_remainder=predict_drop_remainder)
 
     result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
-
     label_list = processor.get_labels()  # used for label_list[max_class] this might be wrong
-
-    output_predict_file = os.path.join(params.output_dir, "test_results.tsv")
-    y_pred = []
-    with tf.gfile.GFile(output_predict_file, 'w') as writer:
-        tf.logging.info("***** Predict results *****")
-        for prediction in result:
-            max_class = prediction.argmax()  # get index for highest confidence prediction
-            output_line = str(max_class) + '\t' + label_list[max_class] + '\t' + '\t'.join(
-                str(class_probability) for class_probability in prediction)
-            writer.write(output_line + '\n')
-            y_pred.append(label_list[max_class])
-    return y_pred
+    return convert_result_pred(result, label_list)
 
 
 def get_intents(data_dir: Path) -> Iterable[str]:
@@ -182,3 +189,47 @@ class IntentProcessor(DataProcessor):
             label = tokenization.convert_to_unicode(line[1])
             examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
         return examples
+
+
+class MetadataHook(SessionRunHook):
+    """hook, based on ProfilerHook, to have the estimator output the run metadata into the model directory
+        source: https://stackoverflow.com/questions/45719176"""
+    def __init__(self,
+                 save_steps=None,
+                 save_secs=None,
+                 output_dir=""):
+        self._output_tag = "step-{}"
+        self._output_dir = output_dir
+        self._timer = SecondOrStepTimer(
+            every_secs=save_secs, every_steps=save_steps)
+
+    def begin(self):
+        self._next_step = None
+        self._global_step_tensor = training_util.get_global_step()
+        self._writer = tf.summary.FileWriter(self._output_dir, tf.get_default_graph())
+
+        if self._global_step_tensor is None:
+            raise RuntimeError("Global step should be created to use ProfilerHook.")
+
+    def before_run(self, run_context):
+        self._request_summary = (
+                self._next_step is None or
+                self._timer.should_trigger_for_step(self._next_step)
+        )
+        requests = {"global_step": self._global_step_tensor}
+        opts = (tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+                if self._request_summary else None)
+        return SessionRunArgs(requests, options=opts)
+
+    def after_run(self, run_context, run_values):
+        stale_global_step = run_values.results["global_step"]
+        global_step = stale_global_step + 1
+        if self._request_summary:
+            global_step = run_context.session.run(self._global_step_tensor)
+            self._writer.add_run_metadata(
+                run_values.run_metadata, self._output_tag.format(global_step))
+            self._writer.flush()
+        self._next_step = global_step + 1
+
+    def end(self, session):
+        self._writer.close()
