@@ -210,8 +210,9 @@ class MetadataHook(SessionRunHook):
     def begin(self):
         self._next_step = None
         self._global_step_tensor = training_util.get_global_step()
+        tf.logging.info('creating file in: {}'.format(self._output_dir))
         self._writer = tf.summary.FileWriter(self._output_dir + '/hook_data', tf.get_default_graph())
-        
+
         if self._global_step_tensor is None:
             raise RuntimeError("Global step should be created to use ProfilerHook.")
 

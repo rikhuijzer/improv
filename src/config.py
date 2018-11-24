@@ -48,7 +48,7 @@ def get_debug_params() -> Params:
         init_checkpoint=bert_pretrained_dir / 'bert_model.ckpt',
         do_lower_case=bert_model.startswith('uncased'),
         max_seq_length=128,
-        do_train=False,
+        do_train=True,
         do_eval=False,
         do_predict=True,
         train_batch_size=1,
