@@ -133,11 +133,12 @@ def train_eval(params: Params, estimator):
     results: List[dict] = []
     for epoch in range(int(params.num_train_epochs)):
         tf.logging.info('Starting training for epoch: {}'.format(epoch))
-        train(params._replace(num_train_epochs=1), estimator)
+        # train(params._replace(num_train_epochs=1), estimator)
         results.append(evaluate(params, estimator))
 
-    for result in results:
-        print(result)
+    print('Epoch enumeration assumes starting from pre-trained model.')
+    for i, result in enumerate(results):
+        print('epoch {}: {}'.format(i + 1, result))
     return results
 
 
