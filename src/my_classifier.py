@@ -114,13 +114,28 @@ def evaluate(params: Params, estimator):
         is_training=False,
         drop_remainder=True)
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
+    print(result)
     print('***** Finished evaluation at {} *****'.format(datetime.now()))
     output_eval_file = params.output_dir + '/eval_results.txt'
     with tf.gfile.GFile(str(output_eval_file), "w") as writer:
         print("***** Eval results *****")
         for key in sorted(result.keys()):
+            # eval_accuracy = 0.90625
+            # eval_loss = 0.76804435
+            # global_step = 90
+            # loss = 1.7459234
             print('  {} = {}'.format(key, str(result[key])))
             writer.write("%s = %s\n" % (key, str(result[key])))
+    return result
+
+
+def train_eval(params: Params, estimator):
+    results = []
+    for epoch in range(int(params.num_train_epochs)):
+        tf.logging.info('Starting training for epoch: {}'.format(epoch))
+        train(params._replace(num_train_epochs=1), estimator)
+        results.append(evaluate(params, estimator))
+    return results
 
 
 def predict(params: Params) -> List[str]:

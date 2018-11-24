@@ -12,6 +12,7 @@ Params = NamedTuple('Params', [
     ('init_checkpoint', Path),  # Initial checkpoint (usually from a pre-trained BERT model).
     ('do_lower_case', bool),  # should be True for uncased and False otherwise
     ('max_seq_length', int),  # Total input sentence length after WordPiece tokenization. Truncated and padded to match.
+    ('do_train_eval', bool),  # Since TPU does not support TensorBoard we run a loop to get statistics
     ('do_train', bool),
     ('do_eval', bool),
     ('do_predict', bool),
@@ -48,9 +49,10 @@ def get_debug_params() -> Params:
         init_checkpoint=bert_pretrained_dir / 'bert_model.ckpt',
         do_lower_case=bert_model.startswith('uncased'),
         max_seq_length=128,
-        do_train=True,
+        do_train_eval=True,
+        do_train=False,
         do_eval=False,
-        do_predict=True,
+        do_predict=False,
         train_batch_size=1,
         eval_batch_size=8,
         predict_batch_size=8,
@@ -79,6 +81,7 @@ def get_params() -> Params:
         init_checkpoint=None,
         do_lower_case=True,
         max_seq_length=128,
+        do_train_eval=False,
         do_train=False,
         do_eval=False,
         do_predict=False,

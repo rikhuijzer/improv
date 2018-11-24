@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from src.config import get_debug_params
 from src.my_classifier import (
-    get_model_and_estimator, evaluate, train, predict
+    get_model_and_estimator, evaluate, train, train_eval, predict
 )
 
 
@@ -13,6 +13,9 @@ def main():
 
     # Colab script starts here, don't forget the imports
     model_fn, estimator = get_model_and_estimator(params)
+
+    if params.do_train_eval:
+        train_eval(params, estimator)
 
     if params.do_train:
         train(params, estimator)
