@@ -72,7 +72,7 @@ def get_model_and_estimator(params: Params):
     return model_fn, estimator
 
 
-def train(params: Params, estimator):
+def train(params: Params, estimator, hook=None):
     processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
@@ -90,7 +90,9 @@ def train(params: Params, estimator):
         is_training=True,
         drop_remainder=True)
 
-    hook = MetadataHook(save_steps=1, output_dir=params.output_dir)
+    if not hook:
+        hook = MetadataHook(save_steps=1, output_dir=params.output_dir)
+
     estimator.train(input_fn=train_input_fn, max_steps=num_train_steps, hooks=[hook])
     print('***** Finished training at {} *****'.format(datetime.now()))
 
