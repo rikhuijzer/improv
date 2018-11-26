@@ -622,8 +622,7 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder, use_tpu)
     def input_fn(params):
         """The actual input function."""
         if 'batch_size' not in params:  # occurs when running on CPU
-            if use_tpu:
-                raise AssertionError('input_fn: batch_size not in params.')
+            tf.logging.warning('input_fn: batch_size not in params.')
             batch_size = 16
         else:
             batch_size = params["batch_size"]

@@ -35,7 +35,7 @@ def get_processor(params: HParams) -> DataProcessor:
     return processor
 
 
-def get_model_and_estimator(params: HParams):
+def get_model_fn_and_estimator(params: HParams):
     processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
@@ -149,7 +149,7 @@ def train_eval(params: HParams, estimator):
 
 def predict(params: HParams) -> List[str]:
     params = params._replace(use_tpu=False)  # BERT code warns against using TPU for predictions.
-    model_fn, estimator = get_model_and_estimator(params)
+    model_fn, estimator = get_model_fn_and_estimator(params)
 
     processor = get_processor(params)
     predict_examples = processor.get_test_examples(params.data_dir)
