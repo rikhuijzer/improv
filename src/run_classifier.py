@@ -584,7 +584,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
 # This function is not used by this file but is still used by the Colab and
 # people who depend on it.
-def input_fn_builder(features, seq_length, is_training, drop_remainder):
+def input_fn_builder(features, seq_length, is_training, drop_remainder, use_tpu):
     """Creates an `input_fn` closure to be passed to TPUEstimator."""
 
     all_input_ids = []
@@ -603,6 +603,9 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder):
         batch_size = params["batch_size"]
 
         num_examples = len(features)
+
+        if not use_tpu:  # summaries not supported on TPU
+            tf.contrib.summary.scalar('my_loss', -1)
 
         # This is for demo purposes and does NOT scale to large data sets. We do
         # not use Dataset.from_generator() because that uses tf.py_func which is

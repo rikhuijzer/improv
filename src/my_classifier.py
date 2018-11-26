@@ -88,7 +88,8 @@ def train(params: Params, estimator, hook=None):
         features=train_features,
         seq_length=params.max_seq_length,
         is_training=True,
-        drop_remainder=True)
+        drop_remainder=True,
+        use_tpu=params.use_tpu)
 
     if not hook:
         hook = MetadataHook(save_steps=1, output_dir=params.output_dir)
