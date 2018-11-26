@@ -113,7 +113,9 @@ def evaluate(params: Params, estimator):
         features=eval_features,
         seq_length=params.max_seq_length,
         is_training=False,
-        drop_remainder=True)
+        drop_remainder=True,
+        use_tpu=params.use_tpu)
+
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
     print(result)
     print('***** Finished evaluation at {} *****'.format(datetime.now()))
