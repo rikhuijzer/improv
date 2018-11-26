@@ -139,9 +139,9 @@ def train_and_evaluate(hparams: HParams):
 
     # export similar to Cloud ML Engine convention
     tf.logging.info('Starting to export model.')
-    #estimator.export_savedmodel(
-    #    export_dir_base=os.path.join(hparams.output_dir, 'export/exporter'),
-    #    serving_input_receiver_fn=serving_input_fn)
+    estimator.export_savedmodel(
+        export_dir_base=os.path.join(hparams.output_dir, 'export/exporter'),
+        serving_input_receiver_fn=serving_input_fn)
 
 
 if __name__ == '__main__':
