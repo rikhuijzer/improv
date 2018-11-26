@@ -48,7 +48,7 @@ def train_and_evaluate(hparams: HParams):
             project=hparams.gcp_project)
         config = tf.contrib.tpu.RunConfig(
             cluster=tpu_cluster_resolver,
-            model_dir=hparams.output_dir,
+            model_dir=hparams.output_dir,  # according to my_classifier
             save_checkpoints_steps=hparams.save_checkpoints_steps,
             tpu_config=tf.contrib.tpu.TPUConfig(
                 iterations_per_loop=hparams.save_checkpoints_steps,
@@ -62,7 +62,7 @@ def train_and_evaluate(hparams: HParams):
         model_fn=model_fn,
         config=config,
         params=hparams,
-        model_dir=hparams.data_dir,
+        model_dir=hparams.output_dir,  # was data_dir
         train_batch_size=hparams.train_batch_size,
         eval_batch_size=hparams.eval_batch_size,
         use_tpu=hparams.use_tpu
