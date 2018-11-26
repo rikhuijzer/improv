@@ -12,7 +12,7 @@ from tensorflow.python.training.basic_session_run_hooks import SecondOrStepTimer
 from tensorflow.python.training.session_run_hook import SessionRunHook, SessionRunArgs
 
 from src import tokenization
-from src.config import Params
+from src.config import HParams
 from src.modeling import BertConfig
 from src.run_classifier import DataProcessor, InputExample
 from src.run_classifier import (
@@ -24,18 +24,18 @@ from src.utils import convert_result_pred, get_rounded_f1
 
 
 @lru_cache(maxsize=1)
-def get_tokenizer(params: Params) -> FullTokenizer:
+def get_tokenizer(params: HParams) -> FullTokenizer:
     return FullTokenizer(vocab_file=str(params.vocab_file), do_lower_case=params.do_lower_case)
 
 
 @lru_cache(maxsize=1)
-def get_processor(params: Params) -> DataProcessor:
+def get_processor(params: HParams) -> DataProcessor:
     processor = IntentProcessor()
     processor.data_dir = params.data_dir
     return processor
 
 
-def get_model_and_estimator(params: Params):
+def get_model_and_estimator(params: HParams):
     processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
@@ -62,17 +62,19 @@ def get_model_and_estimator(params: Params):
             per_host_input_for_training=tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2))
 
     # If TPU is not available, this will fall back to normal Estimator on CPU or GPU.
+    # using normal Estimator to enable tf.summary
     estimator = tf.contrib.tpu.TPUEstimator(
         use_tpu=params.use_tpu,
         model_fn=model_fn,
         config=run_config,
         train_batch_size=params.train_batch_size,
-        eval_batch_size=params.eval_batch_size)
+        eval_batch_size=params.eval_batch_size
+    )
 
     return model_fn, estimator
 
 
-def train(params: Params, estimator, hook=None):
+def train(params: HParams, estimator, hook=None):
     processor = get_processor(params)
     train_examples = processor.get_train_examples(params.data_dir)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
@@ -98,7 +100,7 @@ def train(params: Params, estimator, hook=None):
     print('***** Finished training at {} *****'.format(datetime.now()))
 
 
-def evaluate(params: Params, estimator):
+def evaluate(params: HParams, estimator):
     processor = get_processor(params)
     eval_examples = processor.get_dev_examples(params.data_dir)
     eval_features = convert_examples_to_features(
@@ -132,7 +134,7 @@ def evaluate(params: Params, estimator):
     return result
 
 
-def train_eval(params: Params, estimator):
+def train_eval(params: HParams, estimator):
     results: List[dict] = []
     for epoch in range(int(params.num_train_epochs)):
         tf.logging.info('Starting training for epoch: {}'.format(epoch))
@@ -145,7 +147,7 @@ def train_eval(params: Params, estimator):
     return results
 
 
-def predict(params: Params) -> List[str]:
+def predict(params: HParams) -> List[str]:
     params = params._replace(use_tpu=False)  # BERT code warns against using TPU for predictions.
     model_fn, estimator = get_model_and_estimator(params)
 

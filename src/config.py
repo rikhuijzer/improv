@@ -3,7 +3,7 @@ from pathlib import Path
 from src.utils import get_project_root
 
 
-Params = NamedTuple('Params', [
+HParams = NamedTuple('Params', [
     ('data_dir', Path),
     ('bert_config_file', Path),
     ('task_name', str),
@@ -33,14 +33,14 @@ Params = NamedTuple('Params', [
 ])
 
 
-def get_debug_params() -> Params:
+def get_debug_hparams() -> HParams:
     """Parameters for lightweight BERT execution for debug purposes."""
     task_name = 'askubuntu'
     bert_model = 'uncased_L-12_H-768_A-12'
     bert_pretrained_dir = Path.home() / 'Downloads' / bert_model
     output_dir_name = 'debug'
 
-    return Params(
+    return HParams(
         data_dir=get_project_root() / 'data' / task_name,
         bert_config_file=bert_pretrained_dir / 'bert_config.json',
         task_name=task_name,
@@ -49,7 +49,7 @@ def get_debug_params() -> Params:
         init_checkpoint=bert_pretrained_dir / 'bert_model.ckpt',
         do_lower_case=bert_model.startswith('uncased'),
         max_seq_length=128,
-        do_train_eval=True,
+        do_train_eval=False,
         do_train=False,
         do_eval=False,
         do_predict=False,
@@ -70,9 +70,9 @@ def get_debug_params() -> Params:
     )
 
 
-def get_params() -> Params:
+def get_hparams() -> HParams:
     """Parameters for running BERT. Defaults can be found on Github."""
-    return Params(
+    return HParams(
         data_dir=None,
         bert_config_file=None,
         task_name=None,

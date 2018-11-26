@@ -546,6 +546,26 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         output_spec = None
         if mode == tf.estimator.ModeKeys.TRAIN:
 
+            # START TEST
+            def metric_fn(per_example_loss, label_ids, logits):
+                predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
+                accuracy = tf.metrics.accuracy(label_ids, predictions)
+                loss = tf.metrics.mean(per_example_loss)
+
+                # Note that this information is sent to TensorBoard (tf.summary).
+                return {
+                    "train_accuracy": accuracy,
+                    "train_loss": loss,
+                }
+
+            eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
+            output_spec = tf.contrib.tpu.TPUEstimatorSpec(
+                mode=mode,
+                loss=total_loss,
+                eval_metrics=eval_metrics,
+                scaffold_fn=scaffold_fn)
+            # END TEST
+
             train_op = optimization.create_optimizer(
                 total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
 
@@ -554,6 +574,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 loss=total_loss,
                 train_op=train_op,
                 scaffold_fn=scaffold_fn)
+
         elif mode == tf.estimator.ModeKeys.EVAL:
 
             def metric_fn(per_example_loss, label_ids, logits):
@@ -600,7 +621,12 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder, use_tpu)
 
     def input_fn(params):
         """The actual input function."""
-        batch_size = params["batch_size"]
+        if 'batch_size' not in params:  # occurs when running on CPU
+            if use_tpu:
+                raise AssertionError('input_fn: batch_size not in params.')
+            batch_size = 16
+        else:
+            batch_size = params["batch_size"]
 
         num_examples = len(features)
 
