@@ -112,7 +112,7 @@ def train_and_evaluate(hparams: HParams):
 
     start_timestamp = time.time()  # This time will include compilation time
 
-    while current_step < num_train_steps:
+    while current_step < max_steps:
         # Train for up to steps_per_eval number of steps.
         # At the end of training, a checkpoint will be written to --model_dir.
         next_checkpoint = min(current_step + hparams.save_checkpoints_steps, max_steps)
