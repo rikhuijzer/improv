@@ -40,6 +40,7 @@ def train_and_evaluate(hparams: HParams):
                     hparams.eval_batch_size,
                     num_train_steps)
 
+    '''
     # TPU change 3
     if hparams.use_tpu:
         tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
@@ -55,18 +56,21 @@ def train_and_evaluate(hparams: HParams):
                 per_host_input_for_training=True))
     else:
         config = tf.contrib.tpu.RunConfig()
+    '''
 
     model_fn, estimator = get_model_fn_and_estimator(hparams)
 
+    '''
     estimator = tf.contrib.tpu.TPUEstimator(  # TPU change 4
         model_fn=model_fn,
         config=config,
-        params=hparams,
-        model_dir=hparams.output_dir,  # was data_dir
+        # params=hparams,
+        # model_dir=hparams.data_dir,
         train_batch_size=hparams.train_batch_size,
         eval_batch_size=hparams.eval_batch_size,
         use_tpu=hparams.use_tpu
     )
+    '''
 
     train_examples = processor.get_train_examples(hparams.data_dir)
     num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
@@ -135,6 +139,12 @@ def train_and_evaluate(hparams: HParams):
 
     # export similar to Cloud ML Engine convention
     tf.logging.info('Starting to export model.')
-    estimator.export_savedmodel(
-        export_dir_base=os.path.join(hparams.output_dir, 'export/exporter'),
-        serving_input_receiver_fn=serving_input_fn)
+    #estimator.export_savedmodel(
+    #    export_dir_base=os.path.join(hparams.output_dir, 'export/exporter'),
+    #    serving_input_receiver_fn=serving_input_fn)
+
+
+if __name__ == '__main__':
+    from src.config import get_debug_hparams
+
+    train_and_evaluate(get_debug_hparams())
