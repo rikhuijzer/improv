@@ -33,7 +33,7 @@ def train_and_evaluate(hparams: HParams):
     processor = get_processor(hparams)
     train_examples = processor.get_train_examples(hparams.data_dir)
     num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
-    max_steps = num_train_steps  # this seems to mean the same
+    max_steps = hparams.save_checkpoints_steps
 
     tf.logging.info('train_batch_size=%d  eval_batch_size=%d  max_steps=%d',
                     hparams.train_batch_size,
@@ -138,10 +138,10 @@ def train_and_evaluate(hparams: HParams):
                     max_steps, elapsed_time)
 
     # export similar to Cloud ML Engine convention
-    tf.logging.info('Starting to export model.')
-    estimator.export_savedmodel(
-        export_dir_base=os.path.join(hparams.output_dir, 'export/exporter'),
-        serving_input_receiver_fn=serving_input_fn)
+    # tf.logging.info('Starting to export model.')
+    # estimator.export_savedmodel(
+    #    export_dir_base=os.path.join(hparams.output_dir, 'export/exporter'),
+    #    serving_input_receiver_fn=serving_input_fn)
 
 
 if __name__ == '__main__':
