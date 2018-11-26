@@ -33,12 +33,13 @@ def train_and_evaluate(hparams: HParams):
     processor = get_processor(hparams)
     train_examples = processor.get_train_examples(hparams.data_dir)
     num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
-    max_steps = hparams.save_checkpoints_steps
+    steps_per_epoch = len(train_examples) // hparams.train_batch_size
+    max_steps = hparams.num_train_epochs * steps_per_epoch
 
     tf.logging.info('train_batch_size=%d  eval_batch_size=%d  max_steps=%d',
                     hparams.train_batch_size,
                     hparams.eval_batch_size,
-                    num_train_steps)
+                    max_steps)
 
     '''
     # TPU change 3
@@ -73,7 +74,6 @@ def train_and_evaluate(hparams: HParams):
     '''
 
     train_examples = processor.get_train_examples(hparams.data_dir)
-    num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
     train_features = convert_examples_to_features(
         train_examples, processor.get_labels(), hparams.max_seq_length, get_tokenizer(hparams))
     tf.logging.info("  Num steps = %d", num_train_steps)
@@ -104,7 +104,6 @@ def train_and_evaluate(hparams: HParams):
 
     # load last checkpoint and start from there
     current_step = load_global_step_from_checkpoint_dir(hparams.output_dir)
-    steps_per_epoch = len(train_examples) // hparams.train_batch_size
     tf.logging.info('Training for %d steps (%.2f epochs in total). Current'
                     ' step %d.',
                     max_steps,
