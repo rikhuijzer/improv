@@ -136,7 +136,9 @@ def train_and_evaluate(hparams: HParams):
         # may be excluded modulo the batch size. As long as the batch size is
         # consistent, the evaluated images are also consistent.
         tf.logging.info('Starting to evaluate at step %d', next_checkpoint)
+        tf.logging.warning('STARTING EVAL')
         eval_results = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
+        tf.logging.warning('ENDING EVAL')
         tf.logging.info('Eval results at step %d: %s', next_checkpoint, eval_results)
 
     elapsed_time = int(time.time() - start_timestamp)
