@@ -1,21 +1,50 @@
 import time
+from enum import Enum, auto
+from pathlib import Path
+from typing import Set, List
 
 import tensorflow as tf
 
-from src.my_classifier import get_model_fn_and_estimator, get_processor, get_tokenizer
-from src.run_classifier import input_fn_builder, convert_examples_to_features, model_fn_builder
-from src.modeling import BertConfig
 from src.config import HParams
-import os
+from src.data_reader import get_filtered_messages
+from src.modeling import BertConfig
+from src.my_classifier import get_tokenizer
+from src.run_classifier import input_fn_builder, convert_examples_to_features, model_fn_builder, InputExample
+from src.tokenization import convert_to_unicode
 """Based on https://medium.com/tensorflow/how-to-write-a-custom-estimator-model-for-the-cloud-tpu-7d8bd9068c26."""
+
+
+class SetType(Enum):
+    train = auto()
+    dev = auto()
+    test = auto()
+
+
+def get_examples(filename: Path, set_type: SetType) -> List:
+    if set_type == SetType.train:
+        messages = get_filtered_messages(filename, training=True)
+    else:
+        tf.logging.warning('There currently is no difference between dev and test set.')
+        messages = get_filtered_messages(filename, training=False)
+    examples = []
+    for (i, message) in enumerate(messages):
+        guid = "%s-%s" % (str(set_type.name), i)
+        text_a = convert_to_unicode(message.text)
+        label = convert_to_unicode(message.data['intent'])
+        examples.append(InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+    return examples
+
+
+def get_unique_intents(filename: Path) -> Set[str]:
+    return set(map(lambda m: m.data['intent'], get_filtered_messages(filename, training=True)))
 
 
 def serving_input_fn():
     # Note: only handles one image at a time
     feature_placeholders = {'image_bytes':
-                            tf.placeholder(tf.string, shape=())}
+                                tf.placeholder(tf.string, shape=())}
     features = {
-      'image': 'empty'
+        'image': 'empty'
     }
     return tf.estimator.export.ServingInputReceiver(features, feature_placeholders)
 
@@ -32,13 +61,11 @@ def load_global_step_from_checkpoint_dir(checkpoint_dir):
 def train_and_evaluate(hparams: HParams):
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    # inefficient but it works
-    processor = get_processor(hparams)
-    train_examples = processor.get_train_examples(hparams.data_dir)
+    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
+    train_examples = get_examples(data_filename, SetType.train)
     num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
     steps_per_epoch = len(train_examples) // hparams.train_batch_size
     max_steps = hparams.num_train_epochs * steps_per_epoch
-
     tf.logging.info('train_batch_size=%d  eval_batch_size=%d  max_steps=%d',
                     hparams.train_batch_size,
                     hparams.eval_batch_size,
@@ -62,7 +89,7 @@ def train_and_evaluate(hparams: HParams):
 
     model_fn = model_fn_builder(
         bert_config=BertConfig.from_json_file(str(hparams.bert_config_file)),
-        num_labels=len(processor.get_labels()),
+        num_labels=len(get_unique_intents(data_filename)),
         init_checkpoint=str(hparams.init_checkpoint),
         learning_rate=hparams.learning_rate,
         num_train_steps=num_train_steps,
@@ -80,9 +107,8 @@ def train_and_evaluate(hparams: HParams):
         use_tpu=hparams.use_tpu
     )
 
-    train_examples = processor.get_train_examples(hparams.data_dir)
     train_features = convert_examples_to_features(
-        train_examples, processor.get_labels(), hparams.max_seq_length, get_tokenizer(hparams))
+        train_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
     tf.logging.info("  Num steps = %d", num_train_steps)
 
     train_input_fn = input_fn_builder(
@@ -92,9 +118,9 @@ def train_and_evaluate(hparams: HParams):
         drop_remainder=True,
         use_tpu=hparams.use_tpu)
 
-    eval_examples = processor.get_dev_examples(hparams.data_dir)
+    eval_examples = get_examples(data_filename, SetType.dev)
     eval_features = convert_examples_to_features(
-        eval_examples, processor.get_labels(), hparams.max_seq_length, get_tokenizer(hparams))
+        eval_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
 
     # Eval will be slightly WRONG on the TPU because it will truncate
     # the last batch.
@@ -122,7 +148,8 @@ def train_and_evaluate(hparams: HParams):
     while current_step < max_steps:
         # Train for up to steps_per_eval number of steps.
         # At the end of training, a checkpoint will be written to --model_dir.
-        next_checkpoint = min(current_step + hparams.iterations_per_loop, max_steps)  # possibly need to save checkpoints
+        next_checkpoint = min(current_step + hparams.iterations_per_loop,
+                              max_steps)  # possibly need to save checkpoints
 
         if hparams.do_train:
             estimator.train(input_fn=train_input_fn, max_steps=next_checkpoint)
