@@ -495,7 +495,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      use_one_hot_embeddings):
     """Returns `model_fn` closure for TPUEstimator."""
 
-    def model_fn(features, mode, params):
+    def model_fn(features, mode, params):  # params is called
         """The `model_fn` for TPUEstimator."""
 
         input_ids = features["input_ids"]
@@ -503,7 +503,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         segment_ids = features["segment_ids"]
         label_ids = features["label_ids"]
 
-        tf.logging.info('model_fn.create_model')
+        # defining tf layers just like TPUEstimator example.
         (total_loss, per_example_loss, logits, probabilities) = create_model(
             bert_config, tf.estimator.ModeKeys.TRAIN, input_ids, input_mask, segment_ids, label_ids,
             num_labels, use_one_hot_embeddings)
@@ -512,11 +512,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         scaffold_fn = None
 
         if init_checkpoint:
-            tf.logging.info('model_fn.get_assignment_map_from_checkpoint')
             assignment_map, initialized_variable_names = modeling.get_assignment_map_from_checkpoint(
                                                                 tvars, init_checkpoint)
 
-            tf.logging.info('model_fn: tf.train.init_from_checkpoint')
             if use_tpu:
                 def tpu_scaffold():
                     tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
