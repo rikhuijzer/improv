@@ -3,7 +3,8 @@ import time
 import tensorflow as tf
 
 from src.my_classifier import get_model_fn_and_estimator, get_processor, get_tokenizer
-from src.run_classifier import input_fn_builder, convert_examples_to_features
+from src.run_classifier import input_fn_builder, convert_examples_to_features, model_fn_builder
+from src.modeling import BertConfig
 from src.config import HParams
 import os
 """Based on https://medium.com/tensorflow/how-to-write-a-custom-estimator-model-for-the-cloud-tpu-7d8bd9068c26."""
@@ -29,6 +30,8 @@ def load_global_step_from_checkpoint_dir(checkpoint_dir):
 
 
 def train_and_evaluate(hparams: HParams):
+    tf.logging.set_verbosity(tf.logging.INFO)
+
     # inefficient but it works
     processor = get_processor(hparams)
     train_examples = processor.get_train_examples(hparams.data_dir)
@@ -41,7 +44,6 @@ def train_and_evaluate(hparams: HParams):
                     hparams.eval_batch_size,
                     max_steps)
 
-    '''
     # TPU change 3
     if hparams.use_tpu:
         tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
@@ -57,11 +59,17 @@ def train_and_evaluate(hparams: HParams):
                 per_host_input_for_training=True))
     else:
         config = tf.contrib.tpu.RunConfig()
-    '''
 
-    model_fn, estimator = get_model_fn_and_estimator(hparams)
+    model_fn = model_fn_builder(
+        bert_config=BertConfig.from_json_file(str(hparams.bert_config_file)),
+        num_labels=len(processor.get_labels()),
+        init_checkpoint=str(hparams.init_checkpoint),
+        learning_rate=hparams.learning_rate,
+        num_train_steps=num_train_steps,
+        num_warmup_steps=int(num_train_steps * hparams.warmup_proportion),
+        use_tpu=hparams.use_tpu,
+        use_one_hot_embeddings=True)
 
-    '''
     estimator = tf.contrib.tpu.TPUEstimator(  # TPU change 4
         model_fn=model_fn,
         config=config,
@@ -71,7 +79,6 @@ def train_and_evaluate(hparams: HParams):
         eval_batch_size=hparams.eval_batch_size,
         use_tpu=hparams.use_tpu
     )
-    '''
 
     train_examples = processor.get_train_examples(hparams.data_dir)
     train_features = convert_examples_to_features(
@@ -115,7 +122,7 @@ def train_and_evaluate(hparams: HParams):
     while current_step < max_steps:
         # Train for up to steps_per_eval number of steps.
         # At the end of training, a checkpoint will be written to --model_dir.
-        next_checkpoint = min(current_step + hparams.save_checkpoints_steps, max_steps)
+        next_checkpoint = min(current_step + hparams.iterations_per_loop, max_steps)  # possibly need to save checkpoints
 
         if hparams.do_train:
             estimator.train(input_fn=train_input_fn, max_steps=next_checkpoint)
