@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List, Iterable
 import numpy as np
 from sklearn.metrics import f1_score
+from src.data_reader import get_filtered_messages
 
 
 def get_project_root() -> Path:
@@ -13,20 +14,14 @@ def convert_result_pred(result: Iterable[np.ndarray], label_list: List[str]) -> 
     return list(map(lambda prediction: label_list[prediction.argmax()], result))
 
 
-def get_y_true(file: Path) -> List[str]:
+def get_y_true(file: Path, training: bool) -> List[str]:
     """Get gold standard labels from tsv file."""
-    y_true = []
-    with open(str(file), 'r') as f:
-        for row in f:
-            row = row.replace('\n', '')
-            lines = row.split('\t')
-            y_true.append(lines[1])
-    return y_true
+    return list(map(lambda m: m.data['intent'], get_filtered_messages(file, training=training)))
 
 
 def get_rounded_f1(file: Path, y_pred: List[str], average='micro') -> float:
     """Returns rounded f1 score"""
-    return round(f1_score(get_y_true(file), y_pred, average=average), 3)
+    return round(f1_score(get_y_true(file, training=False), y_pred, average=average), 3)
 
 
 def print_eval_results(results: List[dict]):

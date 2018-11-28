@@ -36,14 +36,16 @@ def get_processor(params: HParams) -> DataProcessor:
 
 
 def get_model_fn_and_estimator(params: HParams):
-    processor = get_processor(params)
-    train_examples = processor.get_train_examples(params.data_dir)
+    from src.my_estimator import get_examples, SetType, get_unique_intents
+
+    data_filename = params.data_dir / (params.task_name + '.tsv')
+    train_examples = get_examples(data_filename, SetType.train)
     num_train_steps = int(len(train_examples) / params.train_batch_size * params.num_train_epochs)
     num_warmup_steps = int(num_train_steps * params.warmup_proportion)
 
     model_fn = model_fn_builder(
         bert_config=BertConfig.from_json_file(str(params.bert_config_file)),
-        num_labels=len(processor.get_labels()),
+        num_labels=len(get_unique_intents(data_filename)),
         init_checkpoint=str(params.init_checkpoint),
         learning_rate=params.learning_rate,
         num_train_steps=num_train_steps,

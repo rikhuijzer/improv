@@ -35,6 +35,10 @@ def get_examples(filename: Path, set_type: SetType) -> List:
     return examples
 
 
+def get_intents(filename: Path) -> List[str]:
+    return list(map(lambda m: m.data['intent'], get_filtered_messages(filename, training=True)))
+
+
 def get_unique_intents(filename: Path) -> Set[str]:
     return set(map(lambda m: m.data['intent'], get_filtered_messages(filename, training=True)))
 
@@ -81,6 +85,7 @@ def train_and_evaluate(hparams: HParams):
             cluster=tpu_cluster_resolver,
             model_dir=hparams.output_dir,  # according to my_classifier
             save_checkpoints_steps=hparams.save_checkpoints_steps,
+            # save_summary_steps=hparams.save_checkpoints_steps,  # source: https://stackoverflow.com/questions/51965950
             tpu_config=tf.contrib.tpu.TPUConfig(
                 iterations_per_loop=hparams.save_checkpoints_steps,
                 per_host_input_for_training=True))
@@ -177,7 +182,45 @@ def train_and_evaluate(hparams: HParams):
     #    serving_input_receiver_fn=serving_input_fn)
 
 
+def predict(hparams: HParams) -> List[str]:
+    from src.my_classifier import get_model_fn_and_estimator, file_based_input_fn_builder
+    from src.run_classifier import file_based_convert_examples_to_features
+    import os
+    from typing import Iterable
+    import numpy as np
+    from src.utils import convert_result_pred, get_rounded_f1
+
+    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
+    params = hparams._replace(use_tpu=False)  # BERT code warns against using TPU for predictions.
+    model_fn, estimator = get_model_fn_and_estimator(params)
+
+    predict_examples = get_examples(data_filename, SetType.test)
+    predict_file = os.path.join(params.output_dir, "predict.tf_record")
+    file_based_convert_examples_to_features(predict_examples, get_unique_intents(data_filename),
+                                            params.max_seq_length, get_tokenizer(params),
+                                            predict_file)
+
+    tf.logging.info("***** Running prediction*****")
+    tf.logging.info("  Num examples = %d", len(predict_examples))
+    tf.logging.info("  Batch size = %d", params.predict_batch_size)
+
+    predict_drop_remainder = params.use_tpu
+    predict_input_fn = file_based_input_fn_builder(
+        input_file=predict_file,
+        seq_length=params.max_seq_length,
+        is_training=False,
+        drop_remainder=predict_drop_remainder)
+
+    result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
+    label_list = get_intents(data_filename)  # used for label_list[max_class] this might be wrong
+    y_pred = convert_result_pred(result, label_list)
+    print('f1 score: {}'.format(get_rounded_f1(params.data_dir / 'askubuntu.tsv', y_pred, average='micro')))
+    return y_pred
+
+
 if __name__ == '__main__':
     from src.config import get_debug_hparams
 
-    train_and_evaluate(get_debug_hparams())
+    # train_and_evaluate(get_debug_hparams())
+
+    predict(get_debug_hparams())
