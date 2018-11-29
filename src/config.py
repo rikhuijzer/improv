@@ -23,6 +23,7 @@ HParams = NamedTuple('Params', [
     ('num_train_epochs', float),
     ('warmup_proportion', float),
     ('save_checkpoints_steps', int),  # how often to save the model checkpoint
+    ('save_summary_steps', int),  # how often to interrupt training to save tf.summary metrics
     ('iterations_per_loop', int),  # how many steps to make in each estimator call
     ('use_tpu', bool),
     ('tpu_name', str),  # Either the name used when creating the Cloud TPU, or a grpc://ip.address.of.tpu:8470
@@ -60,6 +61,7 @@ def get_debug_hparams() -> HParams:
         num_train_epochs=10,
         warmup_proportion=0.1,
         save_checkpoints_steps=1000,
+        save_summary_steps=5,
         iterations_per_loop=1,
         use_tpu=False,
         tpu_name='',  # is used as tpu_address in Colab script
@@ -92,6 +94,7 @@ def get_hparams() -> HParams:
         num_train_epochs=3.0,
         warmup_proportion=0.1,
         save_checkpoints_steps=1000,
+        save_summary_steps=50,
         iterations_per_loop=1000,
         use_tpu=False,
         tpu_name=None,

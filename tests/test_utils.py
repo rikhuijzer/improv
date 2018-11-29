@@ -1,4 +1,4 @@
-from src.utils import get_project_root, convert_result_pred, get_y_true
+from src.utils import get_project_root, convert_result_pred, get_y_true, find_tf_events
 import numpy as np
 
 
@@ -11,7 +11,12 @@ def test_convert_result_pred():
 
 
 def test_get_y_true():
-    file = get_project_root() / 'data' / 'askubuntu' / 'test.tsv'
-    y_true = get_y_true(file)
-    assert 'Make Update' == y_true[0]
-    assert 33 == len(y_true)
+    file = get_project_root() / 'data' / 'askubuntu' / 'askubuntu.tsv'
+    y_true = get_y_true(file, training=False)
+    assert 'Software Recommendation' == y_true[0]
+    assert 109 == len(y_true)
+
+
+def test_find_tf_events():
+    folder = get_project_root() / 'tests'
+    assert 'events.out.tfevents.000000' == find_tf_events(folder).name

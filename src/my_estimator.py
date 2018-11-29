@@ -76,21 +76,18 @@ def train_and_evaluate(hparams: HParams):
                     max_steps)
 
     # TPU change 3
-    if hparams.use_tpu:
-        tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
-            hparams.tpu_name,
-            zone=hparams.tpu_zone,
-            project=hparams.gcp_project)
-        config = tf.contrib.tpu.RunConfig(
-            cluster=tpu_cluster_resolver,
-            model_dir=hparams.output_dir,  # according to my_classifier
-            save_checkpoints_steps=hparams.save_checkpoints_steps,
-            # save_summary_steps=hparams.save_checkpoints_steps,  # source: https://stackoverflow.com/questions/51965950
-            tpu_config=tf.contrib.tpu.TPUConfig(
-                iterations_per_loop=hparams.save_checkpoints_steps,
-                per_host_input_for_training=True))
-    else:
-        config = tf.contrib.tpu.RunConfig()
+    tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
+        hparams.tpu_name,
+        zone=hparams.tpu_zone,
+        project=hparams.gcp_project)
+    config = tf.contrib.tpu.RunConfig(
+        cluster=tpu_cluster_resolver,
+        model_dir=hparams.output_dir,  # according to my_classifier
+        save_checkpoints_steps=hparams.save_checkpoints_steps,
+        save_summary_steps=hparams.save_summary_steps,
+        tpu_config=tf.contrib.tpu.TPUConfig(
+            iterations_per_loop=hparams.save_checkpoints_steps,
+            per_host_input_for_training=True))
 
     model_fn = model_fn_builder(
         bert_config=BertConfig.from_json_file(str(hparams.bert_config_file)),

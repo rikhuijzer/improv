@@ -27,3 +27,10 @@ def get_rounded_f1(file: Path, y_pred: List[str], average='micro') -> float:
 def print_eval_results(results: List[dict]):
     for result in results:
         print(result)
+
+
+def find_tf_events(folder: Path) -> Path:
+    """Returns first file containing 'tfevents' in filename from folder."""
+    for filename in folder.glob('./*'):
+        if 'tfevents' in str(filename):
+            return filename
