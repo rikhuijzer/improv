@@ -47,7 +47,8 @@ def get_tf_event_values(folder: Path):
 
 def test_main():
     model_dir = get_project_root() / 'tmp' / 'custom_estimator'
-    remove_folder(model_dir)
+    if model_dir.is_dir():
+        remove_folder(model_dir)
 
     args = [
         None,

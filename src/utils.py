@@ -34,3 +34,7 @@ def find_tf_events(folder: Path) -> Path:
     for filename in folder.glob('./*'):
         if 'tfevents' in str(filename):
             return filename
+
+
+def get_f1_score(labels, predicted_classes) -> float:
+    print(2)

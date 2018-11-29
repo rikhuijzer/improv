@@ -53,9 +53,13 @@ def my_model(features, labels, mode, params):
     loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
     # Compute evaluation metrics.
+    print('labels', labels)
+    print('pred classes', predicted_classes)
+
     accuracy = tf.metrics.accuracy(labels=labels,
                                    predictions=predicted_classes,
                                    name='acc_op')
+
     metrics = {'accuracy': accuracy}
     tf.summary.scalar('accuracy', accuracy[1])
 
@@ -82,9 +86,8 @@ def main(argv):
     for key in train_x.keys():
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
 
+    tf.gfile.MakeDirs(str(args.model_dir))
     # Build 2 hidden layer DNN with 10, 10 units respectively.
-    tf.gfile.MakeDirs(args.model_dir)
-
     run_config = tf.estimator.RunConfig(save_summary_steps=50)
 
     classifier = tf.estimator.Estimator(

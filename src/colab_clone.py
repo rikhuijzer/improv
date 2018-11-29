@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from src.config import get_debug_hparams
 from src.my_classifier import (
-    get_model_fn_and_estimator, evaluate, train, train_eval, predict
+    get_model_fn_and_estimator, evaluate, train, predict
 )
 
 
@@ -12,9 +12,6 @@ def main():
     tf.gfile.MakeDirs(str(params.output_dir))
 
     model_fn, estimator = get_model_fn_and_estimator(params)
-
-    if params.do_train_eval:
-        train_eval(params, estimator)
 
     if params.do_train:
         train(params, estimator)
