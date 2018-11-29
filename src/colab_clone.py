@@ -7,21 +7,21 @@ from src.my_classifier import (
 
 
 def main():
-    params = get_debug_hparams()
+    hparams = get_debug_hparams()
 
-    tf.gfile.MakeDirs(str(params.output_dir))
+    tf.gfile.MakeDirs(str(hparams.output_dir))
 
-    model_fn, estimator = get_model_fn_and_estimator(params)
+    model_fn, estimator = get_model_fn_and_estimator(hparams)
 
-    if params.do_train:
-        train(params, estimator)
+    if hparams.do_train:
+        train(hparams, estimator)
 
-    if params.do_eval:
-        evaluate(params, estimator)
+    if hparams.do_eval:
+        evaluate(hparams, estimator)
 
     # note that predictions are non-deterministic
-    if params.do_predict:
-        predict(params)
+    if hparams.do_predict:
+        predict(hparams)
 
 
 if __name__ == '__main__':

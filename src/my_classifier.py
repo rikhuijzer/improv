@@ -106,7 +106,7 @@ def get_model_fn_and_estimator(hparams: HParams):
     return model_fn, estimator
 
 
-def train(hparams: HParams, estimator, hook=None):
+def train(hparams: HParams, estimator):
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
     train_examples = get_examples(data_filename, SetType.train)
     num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
@@ -125,7 +125,7 @@ def train(hparams: HParams, estimator, hook=None):
         drop_remainder=True,
         use_tpu=hparams.use_tpu)
 
-    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps, hooks=[hook])
+    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
     print('***** Finished training at {} *****'.format(datetime.now()))
 
 
