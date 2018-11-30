@@ -59,7 +59,7 @@ def get_debug_hparams() -> HParams:
         eval_batch_size=8,
         predict_batch_size=8,
         learning_rate=2e-5,
-        num_train_steps=3,
+        num_train_steps=2,
         warmup_proportion=0.1,
         save_checkpoints_steps=1,
         save_summary_steps=1,

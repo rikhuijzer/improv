@@ -120,8 +120,8 @@ def train(hparams: HParams, estimator):
         features=train_features,
         seq_length=hparams.max_seq_length,
         is_training=True,
-        drop_remainder=True,
-        use_tpu=hparams.use_tpu)
+        drop_remainder=True
+    )
 
     estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
     tf.logging.info('Training took {}.'.format(datetime.now() - training_start_time))
@@ -144,7 +144,7 @@ def evaluate(hparams: HParams, estimator):
         seq_length=hparams.max_seq_length,
         is_training=False,
         drop_remainder=True,
-        use_tpu=hparams.use_tpu)
+    )
 
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
     tf.logging.info(result)

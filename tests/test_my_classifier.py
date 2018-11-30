@@ -38,7 +38,8 @@ def test_get_unique_intents():
 
 def validate_debug_params():
     hparams = get_debug_hparams()
-    assert 3 == hparams.num_train_steps
+    assert 2 == hparams.num_train_steps
+    assert 1 == hparams.save_checkpoints_steps
     assert 1 == hparams.train_batch_size
     assert 1 == hparams.save_summary_steps
 
