@@ -535,8 +535,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
                 # Note that this information is sent to TensorBoard (tf.summary).
                 return {
-                    "accuracy": accuracy,
-                    "loss": loss,
+                    "eval_accuracy": accuracy,
+                    "eval_loss": loss,
                 }
 
             eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
@@ -562,8 +562,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
                 # Note that this information is sent to TensorBoard (tf.summary).
                 return {
-                    "accuracy": accuracy,
-                    "loss": loss,
+                    "eval_accuracy": accuracy,
+                    "eval_loss": loss,
                 }
 
             eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
