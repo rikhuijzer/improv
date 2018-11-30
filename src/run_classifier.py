@@ -513,7 +513,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
         if init_checkpoint:
             assignment_map, initialized_variable_names = modeling.get_assignment_map_from_checkpoint(
-                                                                tvars, init_checkpoint)
+                tvars, init_checkpoint)
 
             if use_tpu:
                 def tpu_scaffold():
@@ -526,6 +526,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
         if mode == tf.estimator.ModeKeys.TRAIN:
             tf.logging.info('model_fn called in TRAIN mode.')
+
             # START TEST
             def metric_fn(per_example_loss, label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
@@ -534,8 +535,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
                 # Note that this information is sent to TensorBoard (tf.summary).
                 return {
-                    "train_accuracy": accuracy,
-                    "train_loss": loss,
+                    "accuracy": accuracy,
+                    "loss": loss,
                 }
 
             eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
@@ -551,8 +552,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 eval_metrics=eval_metrics,
                 scaffold_fn=scaffold_fn)
 
-        elif mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
-            tf.logging.info('model_fn called in TRAIN mode.')
+        elif mode == tf.estimator.ModeKeys.EVAL:
+            tf.logging.info('model_fn called in EVAL mode.')
 
             def metric_fn(per_example_loss, label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
@@ -561,8 +562,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
                 # Note that this information is sent to TensorBoard (tf.summary).
                 return {
-                    "eval_accuracy": accuracy,
-                    "eval_loss": loss,
+                    "accuracy": accuracy,
+                    "loss": loss,
                 }
 
             eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])

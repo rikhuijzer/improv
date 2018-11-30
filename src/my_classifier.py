@@ -127,13 +127,13 @@ def train(hparams: HParams, estimator):
     tf.logging.info('Training took {}.'.format(datetime.now() - training_start_time))
 
 
-def evaluate(hparams: HParams, estimator):
-    evaluation_start_time = datetime.now()
+def evaluate(params: HParams, estimator):
+    hparams = copy(params)
+    hparams = hparams._replace(use_tpu=False)  # evaluation is quicker on CPU
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
     eval_examples = get_examples(data_filename, SetType.dev)
     eval_features = convert_examples_to_features(
         eval_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
-    tf.logging.info('***** Started evaluation at {} *****'.format(datetime.now()))
     tf.logging.info('  Num examples = {}'.format(len(eval_examples)))
     tf.logging.info('  Batch size = {}'.format(hparams.eval_batch_size))
     # Eval will be slightly WRONG on the TPU because it will truncate
