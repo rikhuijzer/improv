@@ -1,17 +1,18 @@
-from src.data_reader import get_filename
-from src.my_classifier import SetType, get_examples
-from src.my_types import Corpus
-from src.utils import get_project_root
-from src.config import get_debug_hparams
-import tensorflow as tf
-from src.my_classifier import get_model_fn_and_estimator, evaluate, train, predict
-from src.utils import clean_folder
-tf.logging.set_verbosity(tf.logging.ERROR)
 from pathlib import Path
+
+from src.config import get_debug_hparams
+from src.data_reader import get_filename
+from src.my_classifier import SetType, get_examples, get_model_fn_and_estimator, train, get_intents, get_unique_intents
+from src.my_types import Corpus
+from src.utils import clean_folder, get_project_root, reduce_output
+
+
+def get_debug_filename() -> Path:
+    return get_project_root() / get_filename(Corpus.ASKUBUNTU)
 
 
 def test_get_examples():
-    filename = get_project_root() / get_filename(Corpus.ASKUBUNTU)
+    filename = get_debug_filename()
     test = get_examples(filename, SetType.test)
     assert 109 == len(test)
     first_test_example = test[0].__dict__
@@ -22,6 +23,19 @@ def test_get_examples():
     assert 53 == len(get_examples(filename, SetType.train))
 
 
+def test_get_intents():
+    intents = get_intents(get_debug_filename(), training=False)
+    assert 109 == len(intents)
+    assert 'Software Recommendation' == intents[0]
+    assert 'Setup Printer' == intents[-1]
+
+
+def test_get_unique_intents():
+    intents = get_unique_intents(get_debug_filename())
+    assert 'Shutdown Computer' in intents
+    assert 5 == len(intents)
+
+
 def validate_debug_params():
     hparams = get_debug_hparams()
     assert 3 == hparams.num_train_steps
@@ -29,13 +43,15 @@ def validate_debug_params():
     assert 1 == hparams.save_summary_steps
 
 
+# TODO: Set learning rate very high such that it can correctly predict some sentence if we ask for that sentence.
+
+
 def test_train():
+    reduce_output()
     validate_debug_params()
     hparams = get_debug_hparams()
+    hparams = hparams._replace(output_dir=get_project_root() / 'tmp' / 'test_my_classifier')
     _, estimator = get_model_fn_and_estimator(hparams)
     train(hparams, estimator)
 
-    output_dir = Path(hparams.output_dir)
-    if output_dir.is_dir():
-        clean_folder(output_dir)
-
+    clean_folder(hparams.output_dir)

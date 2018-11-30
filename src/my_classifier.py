@@ -58,7 +58,7 @@ def get_intents(filename: Path, training: bool) -> List[str]:
 @lru_cache(maxsize=1)
 def get_unique_intents(filename: Path) -> List[str]:
     """Returning list to make sure the order does not change."""
-    return list(map(lambda m: m.data['intent'], get_messages(filename)))
+    return list(set(map(lambda m: m.data['intent'], get_messages(filename))))
 
 
 @lru_cache(maxsize=1)

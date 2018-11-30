@@ -61,7 +61,7 @@ def get_debug_hparams() -> HParams:
         learning_rate=2e-5,
         num_train_steps=3,
         warmup_proportion=0.1,
-        save_checkpoints_steps=1000,
+        save_checkpoints_steps=1,
         save_summary_steps=1,
         iterations_per_loop=1,
         use_tpu=False,

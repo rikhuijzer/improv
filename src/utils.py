@@ -7,6 +7,8 @@ from sklearn.metrics import f1_score
 
 from src.data_reader import get_filtered_messages
 import tensorflow as tf
+import os
+import warnings
 
 
 def get_project_root() -> Path:
@@ -49,3 +51,10 @@ def clean_folder(folder: Path):
     if folder.is_dir():
         shutil.rmtree(str(folder))
     tf.gfile.MakeDirs(str(folder))
+
+
+def reduce_output():
+    """Reduces the output in terminal. Do not move warnings.simplefilter to module."""
+    tf.logging.set_verbosity(tf.logging.ERROR)
+    warnings.simplefilter('ignore')  # warnings still show up in the pytest warning summary
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # ignores CPU instructions warning

@@ -10,7 +10,8 @@ from six.moves import StringIO
 
 import src.iris_estimator.iris_data as iris_data
 from src.iris_estimator.custom_estimator import main
-from src.utils import get_project_root, clean_folder
+from src.utils import get_project_root, clean_folder, reduce_output
+
 
 FOUR_LINES = '\n'.join([
     '1,52.40, 2823,152,2',
@@ -39,7 +40,7 @@ def get_tf_event_values(folder: Path):
 
 
 def test_main():
-    tf.logging.set_verbosity(tf.logging.ERROR)
+    reduce_output()
     model_dir = get_project_root() / 'tmp' / 'custom_estimator'
     if model_dir.is_dir():
         clean_folder(model_dir)
