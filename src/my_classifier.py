@@ -1,4 +1,3 @@
-import csv
 import os
 from copy import copy
 from datetime import datetime
@@ -19,7 +18,7 @@ from src.run_classifier import (
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
 from src.tokenization import FullTokenizer, convert_to_unicode
-from src.utils import convert_result_pred, get_rounded_f1
+from src.utils import convert_result_pred, get_rounded_f1, print_eval_results
 
 
 @lru_cache(maxsize=1)
@@ -103,7 +102,7 @@ def get_model_fn_and_estimator(hparams: HParams):
     return model_fn, estimator
 
 
-def train(hparams: HParams, estimator):
+def train(hparams: HParams, estimator, max_steps: int):
     training_start_time = datetime.now()
     tf.logging.info('***** Started training at {} *****'.format(training_start_time))
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
@@ -123,7 +122,7 @@ def train(hparams: HParams, estimator):
         drop_remainder=True
     )
 
-    estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
+    estimator.train(input_fn=train_input_fn, max_steps=max_steps)
     tf.logging.info('Training took {}.'.format(datetime.now() - training_start_time))
 
 
@@ -160,6 +159,16 @@ def evaluate(params: HParams, estimator):
             tf.logging.info('  {} = {}'.format(key, str(result[key])))
             writer.write("%s = %s\n" % (key, str(result[key])))
     return result
+
+
+def train_evaluate(hparams: HParams, estimator):
+    max_steps = hparams.save_summary_steps  # TPU just plows on, we need to manually enforce save_summary_steps
+    step = 0
+    while step < hparams.num_train_steps:
+        train(hparams, estimator, max_steps)
+        results = evaluate(hparams, estimator)
+        print('Step {}: {}'.format(step, results))
+        step += max_steps
 
 
 def predict(params: HParams) -> List[str]:

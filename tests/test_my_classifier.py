@@ -2,7 +2,9 @@ from pathlib import Path
 
 from src.config import get_debug_hparams
 from src.data_reader import get_filename
-from src.my_classifier import SetType, get_examples, get_model_fn_and_estimator, train, get_intents, get_unique_intents
+from src.my_classifier import (
+    SetType, get_examples, get_model_fn_and_estimator, train, get_intents, get_unique_intents, train_evaluate
+)
 from src.my_types import Corpus
 from src.utils import clean_folder, get_project_root, reduce_output
 
@@ -51,8 +53,17 @@ def test_train():
     reduce_output()
     validate_debug_params()
     hparams = get_debug_hparams()
-    hparams = hparams._replace(output_dir=get_project_root() / 'tmp' / 'test_my_classifier')
+    hparams = hparams._replace(output_dir=str(get_project_root() / 'tmp' / 'test_my_classifier_train'))
     _, estimator = get_model_fn_and_estimator(hparams)
-    train(hparams, estimator)
+    train(hparams, estimator, max_steps=2)
 
     clean_folder(hparams.output_dir)
+
+
+def test_train_evaluate():
+    reduce_output()
+    validate_debug_params()
+    hparams = get_debug_hparams()
+    hparams = hparams._replace(output_dir=str(get_project_root() / 'tmp' / 'test_my_classifier_train_eval'))
+    _, estimator = get_model_fn_and_estimator(hparams)
+    train_evaluate(hparams, estimator)
