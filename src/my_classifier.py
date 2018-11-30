@@ -1,29 +1,25 @@
 import csv
 import os
+from copy import copy
 from datetime import datetime
+from enum import Enum, auto
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, List, Set
+from typing import Iterable, List
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.training import training_util
-from tensorflow.python.training.basic_session_run_hooks import SecondOrStepTimer
-from tensorflow.python.training.session_run_hook import SessionRunHook, SessionRunArgs
 
-from src import tokenization
 from src.config import HParams
+from src.data_reader import get_messages, get_filtered_messages
 from src.modeling import BertConfig
-from src.run_classifier import DataProcessor, InputExample
+from src.run_classifier import InputExample
 from src.run_classifier import (
     input_fn_builder, convert_examples_to_features, model_fn_builder,
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
 from src.tokenization import FullTokenizer, convert_to_unicode
 from src.utils import convert_result_pred, get_rounded_f1
-from src.data_reader import get_messages, get_filtered_messages
-from enum import Enum, auto
-from copy import copy
 
 
 @lru_cache(maxsize=1)
@@ -41,7 +37,7 @@ def get_examples(filename: Path, set_type: SetType) -> List:
     if set_type == SetType.train:
         messages = get_filtered_messages(filename, training=True)
     else:
-        tf.logging.warning('There currently is no difference between dev and test set.')
+        tf.logging.info('There currently is no difference between dev and test set.')
         messages = get_filtered_messages(filename, training=False)
     examples = []
     for (i, message) in enumerate(messages):
@@ -191,11 +187,3 @@ def predict(params: HParams) -> List[str]:
     y_pred = convert_result_pred(result, label_list)
     print('f1 score: {}'.format(get_rounded_f1(hparams.data_dir / (hparams.task_name + '.tsv'), y_pred)))
     return y_pred
-
-
-def get_intents(data_dir: Path) -> Iterable[str]:
-    with open(str(data_dir / 'test.tsv'), 'r', encoding='utf8', newline='') as tsv_file:
-        tsv_reader = csv.reader(tsv_file, delimiter='\t', lineterminator='\n')
-
-        for row in tsv_reader:
-            yield row[1]

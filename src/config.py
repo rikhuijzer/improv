@@ -1,6 +1,5 @@
 from typing import NamedTuple
 from pathlib import Path
-from src.utils import get_project_root
 
 
 HParams = NamedTuple('Params', [
@@ -36,6 +35,8 @@ HParams = NamedTuple('Params', [
 
 def get_debug_hparams() -> HParams:
     """Parameters for lightweight BERT execution for debug purposes."""
+    from src.utils import get_project_root
+
     task_name = 'askubuntu'
     bert_model = 'uncased_L-12_H-768_A-12'
     bert_pretrained_dir = Path.home() / 'Downloads' / bert_model
@@ -51,7 +52,7 @@ def get_debug_hparams() -> HParams:
         do_lower_case=bert_model.startswith('uncased'),
         max_seq_length=128,
         do_train_eval=False,
-        do_train=False,
+        do_train=True,
         do_eval=True,
         do_predict=True,
         train_batch_size=16,

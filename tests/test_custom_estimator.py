@@ -4,17 +4,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import shutil
+from pathlib import Path
+
 import pandas as pd
 import tensorflow as tf
 from six.moves import StringIO
 
-import src.iris_estimator.custom_estimator as custom_estimator
 import src.iris_estimator.iris_data as iris_data
-from src.utils import get_project_root, find_tf_events
-from pathlib import Path
-import shutil
 from src.iris_estimator.custom_estimator import main
-
+from src.utils import get_project_root, find_tf_events
 
 FOUR_LINES = '\n'.join([
     '1,52.40, 2823,152,2',
@@ -37,27 +36,30 @@ def remove_folder(folder: Path):
     shutil.rmtree(str(folder))
 
 
+'''
 def get_tf_event_values(folder: Path):
     for e in tf.train.summary_iterator(str(folder)):
         for v in e.summary.value:
             print(v)
             # if v.tag == 'loss' or v.tag == 'accuracy':
              #    print(v.simple_value)
+'''
 
 
 def test_main():
+    tf.logging.set_verbosity(tf.logging.ERROR)
     model_dir = get_project_root() / 'tmp' / 'custom_estimator'
     if model_dir.is_dir():
         remove_folder(model_dir)
 
     args = [
         None,
-        '--train_steps=1000',
+        '--train_steps=10',
         '--model_dir={}'.format(model_dir)
     ]
     tf.logging.set_verbosity(tf.logging.WARN)
     main(args)
 
-    tf_events = find_tf_events(model_dir)
-    print(tf_events)
-    get_tf_event_values(tf_events)
+    # tf_events = find_tf_events(model_dir)
+    # print(tf_events)
+    # get_tf_event_values(tf_events)

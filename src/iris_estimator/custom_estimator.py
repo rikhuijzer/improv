@@ -53,8 +53,8 @@ def my_model(features, labels, mode, params):
     loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
     # Compute evaluation metrics.
-    print('labels', labels)
-    print('pred classes', predicted_classes)
+    # print('labels', labels)
+    # print('pred classes', predicted_classes)
 
     accuracy = tf.metrics.accuracy(labels=labels,
                                    predictions=predicted_classes,
@@ -111,7 +111,7 @@ def main(argv):
     eval_result = classifier.evaluate(
         input_fn=lambda: iris_data.eval_input_fn(test_x, test_y, args.batch_size))
 
-    print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+    # print('\nTest set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
 
     # Generate predictions from the model
     expected = ['Setosa', 'Versicolor', 'Virginica']
@@ -133,8 +133,7 @@ def main(argv):
         class_id = pred_dict['class_ids'][0]
         probability = pred_dict['probabilities'][class_id]
 
-        print(template.format(iris_data.SPECIES[class_id],
-                              100 * probability, expec))
+        # print(template.format(iris_data.SPECIES[class_id], 100 * probability, expec))
 
 
 if __name__ == '__main__':

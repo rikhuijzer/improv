@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Tuple, Iterable, List
 from rasa_nlu.training_data import Message
 import re
+from src.my_types import Corpus
 
 
 def read_tsv(filename: Path, quotechar=None) -> Iterable[List[str]]:
@@ -17,7 +18,7 @@ def read_tsv(filename: Path, quotechar=None) -> Iterable[List[str]]:
 
 
 def convert_annotated_text(annotated: str) -> str:
-    return re.sub('[\(].*?[\)]', '', annotated).replace('[', '').replace(']', '')
+    return re.sub('[(].*?[)]', '', annotated).replace('[', '').replace(']', '')
 
 
 def convert_line_message(line: List[str]) -> Message:
@@ -35,3 +36,11 @@ def get_messages(filename: Path) -> Iterable[Message]:
 @lru_cache(maxsize=2)
 def get_filtered_messages(filename: Path, training: bool) -> Tuple[Message]:
     return tuple(filter(lambda m: m.data['training'] == training, get_messages(filename)))
+
+
+def get_filename(corpus: Corpus) -> Path:
+    """Returns filename for some Corpus. This avoids re-defining corpus location all over the place."""
+    from src.utils import get_project_root
+
+    task = corpus.name.lower()
+    return get_project_root() / 'data' / task / (task + '.tsv')
