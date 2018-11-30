@@ -1,8 +1,12 @@
+import shutil
 from pathlib import Path
 from typing import List, Iterable
+
 import numpy as np
 from sklearn.metrics import f1_score
+
 from src.data_reader import get_filtered_messages
+import tensorflow as tf
 
 
 def get_project_root() -> Path:
@@ -37,4 +41,11 @@ def find_tf_events(folder: Path) -> Path:
 
 
 def get_f1_score(labels, predicted_classes) -> float:
-    print(2)
+    return -1.0
+
+
+def clean_folder(folder: Path):
+    """Makes sure that folder is an existing empty folder."""
+    if folder.is_dir():
+        shutil.rmtree(str(folder))
+    tf.gfile.MakeDirs(str(folder))

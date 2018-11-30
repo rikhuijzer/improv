@@ -4,16 +4,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import shutil
-from pathlib import Path
-
 import pandas as pd
 import tensorflow as tf
 from six.moves import StringIO
 
 import src.iris_estimator.iris_data as iris_data
 from src.iris_estimator.custom_estimator import main
-from src.utils import get_project_root, find_tf_events
+from src.utils import get_project_root, clean_folder
 
 FOUR_LINES = '\n'.join([
     '1,52.40, 2823,152,2',
@@ -31,11 +28,6 @@ def four_lines_data():
     return xy, xy
 
 
-def remove_folder(folder: Path):
-    """Recursively remove entire folder."""
-    shutil.rmtree(str(folder))
-
-
 '''
 def get_tf_event_values(folder: Path):
     for e in tf.train.summary_iterator(str(folder)):
@@ -50,7 +42,7 @@ def test_main():
     tf.logging.set_verbosity(tf.logging.ERROR)
     model_dir = get_project_root() / 'tmp' / 'custom_estimator'
     if model_dir.is_dir():
-        remove_folder(model_dir)
+        clean_folder(model_dir)
 
     args = [
         None,

@@ -61,12 +61,12 @@ def get_unique_intents(filename: Path) -> List[str]:
     return list(map(lambda m: m.data['intent'], get_messages(filename)))
 
 
+@lru_cache(maxsize=1)
 def get_model_fn_and_estimator(hparams: HParams):
-    from src.my_estimator import get_examples, SetType, get_unique_intents
+    from src.my_estimator import get_unique_intents
 
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
-    train_examples = get_examples(data_filename, SetType.train)
-    num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
+    num_train_steps = hparams.num_train_steps
     num_warmup_steps = int(num_train_steps * hparams.warmup_proportion)
 
     model_fn = model_fn_builder(
@@ -104,14 +104,15 @@ def get_model_fn_and_estimator(hparams: HParams):
 
 
 def train(hparams: HParams, estimator):
+    training_start_time = datetime.now()
+    tf.logging.info('***** Started training at {} *****'.format(training_start_time))
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
     train_examples = get_examples(data_filename, SetType.train)
     num_train_steps = hparams.num_train_steps
     train_features = convert_examples_to_features(
         train_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
-    print('***** Started training at {} *****'.format(datetime.now()))
-    print('  Num examples = {}'.format(len(train_examples)))
-    print('  Batch size = {}'.format(hparams.train_batch_size))
+    tf.logging.info('  Num examples = {}'.format(len(train_examples)))
+    tf.logging.info('  Batch size = {}'.format(hparams.train_batch_size))
     tf.logging.info("  Num steps = %d", num_train_steps)
 
     # see run_classifier.convert_single_example for feature creation
@@ -123,17 +124,18 @@ def train(hparams: HParams, estimator):
         use_tpu=hparams.use_tpu)
 
     estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
-    print('***** Finished training at {} *****'.format(datetime.now()))
+    tf.logging.info('Training took {}.'.format(datetime.now() - training_start_time))
 
 
 def evaluate(hparams: HParams, estimator):
+    evaluation_start_time = datetime.now()
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
     eval_examples = get_examples(data_filename, SetType.dev)
     eval_features = convert_examples_to_features(
         eval_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
-    print('***** Started evaluation at {} *****'.format(datetime.now()))
-    print('  Num examples = {}'.format(len(eval_examples)))
-    print('  Batch size = {}'.format(hparams.eval_batch_size))
+    tf.logging.info('***** Started evaluation at {} *****'.format(datetime.now()))
+    tf.logging.info('  Num examples = {}'.format(len(eval_examples)))
+    tf.logging.info('  Batch size = {}'.format(hparams.eval_batch_size))
     # Eval will be slightly WRONG on the TPU because it will truncate
     # the last batch.
     eval_steps = int(len(eval_examples) / hparams.eval_batch_size)
@@ -145,17 +147,17 @@ def evaluate(hparams: HParams, estimator):
         use_tpu=hparams.use_tpu)
 
     result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
-    print(result)
-    print('***** Finished evaluation at {} *****'.format(datetime.now()))
+    tf.logging.info(result)
+    tf.logging.info('***** Finished evaluation at {} *****'.format(datetime.now()))
     output_eval_file = hparams.output_dir + '/eval_results.txt'
     with tf.gfile.GFile(str(output_eval_file), "w") as writer:
-        print("***** Eval results *****")
+        tf.logging.info("***** Eval results *****")
         for key in sorted(result.keys()):
             # eval_accuracy = 0.90625
             # eval_loss = 0.76804435
             # global_step = 90
             # loss = 1.7459234
-            print('  {} = {}'.format(key, str(result[key])))
+            tf.logging.info('  {} = {}'.format(key, str(result[key])))
             writer.write("%s = %s\n" % (key, str(result[key])))
     return result
 
@@ -186,5 +188,5 @@ def predict(params: HParams) -> List[str]:
     result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
     label_list = get_unique_intents(data_filename)  # used for label_list[max_class] this might be wrong
     y_pred = convert_result_pred(result, label_list)
-    print('f1 score: {}'.format(get_rounded_f1(hparams.data_dir / (hparams.task_name + '.tsv'), y_pred)))
+    tf.logging.info('f1 score: {}'.format(get_rounded_f1(hparams.data_dir / (hparams.task_name + '.tsv'), y_pred)))
     return y_pred
