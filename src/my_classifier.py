@@ -33,7 +33,8 @@ class SetType(Enum):
     test = auto()
 
 
-def get_examples(filename: Path, set_type: SetType) -> List:
+def get_examples(filename: Path, set_type: SetType) -> List[InputExample]:
+    """Returns input examples as specified in run_classifier.py"""
     if set_type == SetType.train:
         messages = get_filtered_messages(filename, training=True)
     else:
@@ -105,7 +106,7 @@ def get_model_fn_and_estimator(hparams: HParams):
 def train(hparams: HParams, estimator):
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
     train_examples = get_examples(data_filename, SetType.train)
-    num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
+    num_train_steps = hparams.num_train_steps
     train_features = convert_examples_to_features(
         train_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
     print('***** Started training at {} *****'.format(datetime.now()))
