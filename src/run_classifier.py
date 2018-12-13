@@ -495,7 +495,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      use_one_hot_embeddings):
     """Returns `model_fn` closure for TPUEstimator."""
 
-    def model_fn(features, labels, mode, params):  # do not change params
+    def model_fn(features, labels, mode, params):  # do not change signature
         """The `model_fn` for TPUEstimator."""
 
         input_ids = features["input_ids"]
@@ -599,7 +599,7 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder):
 
     def input_fn(params):
         """The actual input function."""
-        if 'batch_size' not in params:  # occurs when running on CPU
+        if 'batch_size' not in params:  # this seems to occur when running on CPU
             tf.logging.warning('input_fn: batch_size not in params.')
             batch_size = 16
         else:
@@ -630,10 +630,10 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder):
         })
 
         if is_training:
-            d = d.repeat()
-            d = d.shuffle(buffer_size=100)
+            d = d.repeat()  # repeat dataset indefinitely
+            d = d.shuffle(buffer_size=100)  # randomly shuffle elements of dataset
 
-        d = d.batch(batch_size=batch_size, drop_remainder=drop_remainder)
+        d = d.batch(batch_size=batch_size, drop_remainder=drop_remainder)  # create a batch
         return d
 
     return input_fn

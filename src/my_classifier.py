@@ -18,12 +18,16 @@ from src.run_classifier import (
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
 from src.tokenization import FullTokenizer, convert_to_unicode
-from src.utils import convert_result_pred, get_rounded_f1, print_eval_results
+from src.utils import convert_result_pred, get_rounded_f1
 
 
 @lru_cache(maxsize=1)
 def get_tokenizer(params: HParams) -> FullTokenizer:
     return FullTokenizer(vocab_file=str(params.vocab_file), do_lower_case=params.do_lower_case)
+
+
+def get_data_filename(hparams: HParams) -> Path:
+    return hparams.data_dir / (hparams.task_name + '.tsv')
 
 
 class SetType(Enum):
@@ -64,7 +68,7 @@ def get_unique_intents(filename: Path) -> List[str]:
 def get_model_fn_and_estimator(hparams: HParams):
     from src.my_estimator import get_unique_intents
 
-    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
+    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')  # possible duplicate
     num_train_steps = hparams.num_train_steps
     num_warmup_steps = int(num_train_steps * hparams.warmup_proportion)
 
@@ -105,7 +109,7 @@ def get_model_fn_and_estimator(hparams: HParams):
 def train(hparams: HParams, estimator, max_steps: int):
     training_start_time = datetime.now()
     tf.logging.info('***** Started training at {} *****'.format(training_start_time))
-    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
+    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')  # possible duplicate
     train_examples = get_examples(data_filename, SetType.train)
     num_train_steps = hparams.num_train_steps
     train_features = convert_examples_to_features(
@@ -129,7 +133,7 @@ def train(hparams: HParams, estimator, max_steps: int):
 def evaluate(params: HParams, estimator):
     hparams = copy(params)
     hparams = hparams._replace(use_tpu=False)  # evaluation is quicker on CPU
-    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
+    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')  # possible duplicate
     eval_examples = get_examples(data_filename, SetType.dev)
     eval_features = convert_examples_to_features(
         eval_examples, get_unique_intents(data_filename), hparams.max_seq_length, get_tokenizer(hparams))
