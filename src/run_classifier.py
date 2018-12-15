@@ -335,7 +335,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length,
     label_id = label_map[example.label]
     if ex_index < 5:
         tf.logging.info("*** Example ***")
-        tf.logging.info("guid: %s" % (example.guid))
+        tf.logging.info("guid: %s" % example.guid)
         tf.logging.info("tokens: %s" % " ".join(
             [tokenization.printable_text(x) for x in tokens]))
         tf.logging.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
@@ -446,7 +446,7 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
 
 
 def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
-                 labels, num_labels, use_one_hot_embeddings):
+                 labels, num_labels, use_one_hot_embeddings):  # called in model_fn
     """Creates a classification model."""
     model = modeling.BertModel(
         config=bert_config,
@@ -487,7 +487,7 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
         per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
         loss = tf.reduce_mean(per_example_loss)
 
-        return (loss, per_example_loss, logits, probabilities)
+        return loss, per_example_loss, logits, probabilities
 
 
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
@@ -526,21 +526,6 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
         if mode == tf.estimator.ModeKeys.TRAIN:
             tf.logging.info('model_fn called in TRAIN mode.')
-
-            # START TEST
-            def metric_fn(per_example_loss, label_ids, logits):
-                predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                accuracy = tf.metrics.accuracy(label_ids, predictions)
-                loss = tf.metrics.mean(per_example_loss)
-
-                # Note that this information is sent to TensorBoard (tf.summary).
-                return {
-                    "eval_accuracy": accuracy,
-                    "eval_loss": loss,
-                }
-
-            eval_metrics = (metric_fn, [per_example_loss, label_ids, logits])
-            # END TEST
 
             train_op = optimization.create_optimizer(
                 total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
