@@ -19,6 +19,8 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from tensorflow.python.ops import math_ops
 import src.kyzhouhzau_tf_metrics as tf_metrics
 import pickle
+from typing import List
+from src.config import HParams
 
 flags = tf.flags
 
@@ -150,13 +152,13 @@ class DataProcessor(object):
             words = []
             labels = []
             for line in f:
-                contends = line.strip()
+                contents = line.strip()
                 word = line.strip().split(' ')[0]
                 label = line.strip().split(' ')[-1]
-                if contends.startswith("-DOCSTART-"):
+                if contents.startswith("-DOCSTART-"):
                     words.append('')
                     continue
-                if len(contends) == 0 and words[-1] == '.':
+                if len(contents) == 0 and words[-1] == '.':
                     l = ' '.join([label for label in labels if len(label) > 0])
                     w = ' '.join([word for word in words if len(word) > 0])
                     lines.append([l, w])
@@ -169,6 +171,9 @@ class DataProcessor(object):
 
 
 class NerProcessor(DataProcessor):
+    def __init__(self, h_params: HParams):
+        self.h_params = h_params
+
     def get_train_examples(self, data_dir):
         return self._create_example(
             self._read_data(os.path.join(data_dir, "train.txt")), "train"
@@ -184,11 +189,13 @@ class NerProcessor(DataProcessor):
             self._read_data(os.path.join(data_dir, "test.txt")), "test")
 
     def get_labels(self):
-        return ["B-MISC", "I-MISC", "O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X", "[CLS]", "[SEP]"]
+        raise NotImplementedError
+        # return get_unique_labels(self.h_params)
+        # return ["B-MISC", "I-MISC", "O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X", "[CLS]", "[SEP]"]
 
     def _create_example(self, lines, set_type):
         examples = []
-        for (i, line) in enumerate(lines):
+        for i, line in enumerate(lines):
             guid = "%s-%s" % (set_type, i)
             text = tokenization.convert_to_unicode(line[1])
             label = tokenization.convert_to_unicode(line[0])

@@ -37,7 +37,7 @@ def get_debug_hparams() -> HParams:
     """Parameters for lightweight BERT execution for debug purposes."""
     from src.utils import get_project_root
 
-    task_name = 'askubuntu'
+    task_name = 'chatbot'
     bert_model = 'uncased_L-12_H-768_A-12'
     bert_pretrained_dir = Path.home() / 'Downloads' / bert_model
     output_dir_name = 'debug'
