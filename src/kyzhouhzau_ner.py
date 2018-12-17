@@ -155,12 +155,14 @@ class DataProcessor(object):
                 contents = line.strip()
                 word = line.strip().split(' ')[0]
                 label = line.strip().split(' ')[-1]
-                if contents.startswith("-DOCSTART-"):
+                if contents.startswith("-DOCSTART-"):  # this condition is false most of the time
                     words.append('')
                     continue
-                if len(contents) == 0 and words[-1] == '.':
+                if len(contents) == 0:  # this condition is false most of the time
                     l = ' '.join([label for label in labels if len(label) > 0])
                     w = ' '.join([word for word in words if len(word) > 0])
+
+                    # append and reset words and labels
                     lines.append([l, w])
                     words = []
                     labels = []
@@ -168,6 +170,10 @@ class DataProcessor(object):
                 words.append(word)
                 labels.append(label)
             return lines
+        # this seems to create a list containing two items.
+        # the first being item 0, containing two strings. The first having tags and second text
+        # the second contains the same, but is much shorter. Might be mistake?
+        # based on the code it seems that the list is split for each -DOCSTART-. Might be caused by that.
 
 
 class NerProcessor(DataProcessor):
