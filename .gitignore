@@ -181,3 +181,5 @@ fabric.properties
 
 # generated files
 tmp
+# not an important file, just there since the Bucket can be hard to access
+label2id.pkl

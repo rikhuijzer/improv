@@ -125,7 +125,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for i, label in enumerate(label_list, 1):
         label_map[label] = i
-    with open(os.path.join(h_params.output_dir, 'label2id.pkl'), 'wb') as w:
+    with open(os.path.join(h_params.data_dir, 'label2id.pkl'), 'wb') as w:
         pickle.dump(label_map, w)
     textlist = example.text.split(' ')
     labellist = example.label.split(' ')
@@ -496,7 +496,7 @@ def main(h_params: HParams):
 
     if h_params.do_predict:
         token_path = os.path.join(h_params.output_dir, "token_test.txt")
-        with open(os.path.join(h_params.output_dir, 'label2id.pkl'), 'rb') as rf:
+        with open(os.path.join(h_params.data_dir, 'label2id.pkl'), 'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value: key for key, value in label2id.items()}
         if os.path.exists(token_path):
