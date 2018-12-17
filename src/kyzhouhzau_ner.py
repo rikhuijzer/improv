@@ -430,7 +430,7 @@ def main(h_params: HParams):
 
     if h_params.do_train:
         train_examples = processor.get_train_examples(h_params.data_dir)
-        num_train_steps = int(len(train_examples) / h_params.train_batch_size * h_params.num_train_epochs)
+        num_train_steps = h_params.num_train_steps
         num_warmup_steps = int(num_train_steps * h_params.warmup_proportion)
 
     model_fn = model_fn_builder(
