@@ -360,9 +360,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(per_example_loss, label_ids, logits):
                 # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                precision = tf_metrics.precision(label_ids, predictions, n_labels, interesting_labels_indexes, average="macro")
-                recall = tf_metrics.recall(label_ids, predictions, n_labels, interesting_labels_indexes, average="macro")
-                f = tf_metrics.f1(label_ids, predictions, n_labels, interesting_labels_indexes, average="macro")
+                precision = tf_metrics.precision(label_ids, predictions, n_labels, interesting_labels_indexes, average="weighted")
+                recall = tf_metrics.recall(label_ids, predictions, n_labels, interesting_labels_indexes, average="weighted")
+                f = tf_metrics.f1(label_ids, predictions, n_labels, interesting_labels_indexes, average="weighted")
                 #
                 return {
                     "eval_precision": precision,
@@ -526,6 +526,10 @@ def main(h_params: HParams):
         result = estimator.predict(input_fn=predict_input_fn)
         output_predict_file = os.path.join(h_params.local_dir, "label_test.txt")
         with open(output_predict_file, 'w') as writer:
+            # Colab crashes on next line, it seems when unpacking results.
+            # TPUEstimatorSpec.predictions must be dict of Tensors.
+            writer.write(str(result))
+            
             for prediction in result:
                 output_line = "\n".join(id2label[id] for id in prediction if id != 0) + "\n"
                 writer.write(output_line)
