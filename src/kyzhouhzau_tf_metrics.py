@@ -12,8 +12,7 @@ import tensorflow as tf
 from tensorflow.python.ops.metrics_impl import _streaming_confusion_matrix
 
 
-def precision(labels, predictions, num_classes, pos_indices=None,
-              weights=None, average='micro'):
+def precision(labels, predictions, num_classes, pos_indices=None, weights=None, average='micro'):
     """Multi-class precision metric for Tensorflow
     Parameters
     ----------
@@ -41,13 +40,10 @@ def precision(labels, predictions, num_classes, pos_indices=None,
     -------
     tuple of (scalar float Tensor, update_op)
     """
-    cm, op = _streaming_confusion_matrix(
-        labels, predictions, num_classes, weights)
-    pr, _, _ = metrics_from_confusion_matrix(
-        cm, pos_indices, average=average)
-    op, _, _ = metrics_from_confusion_matrix(
-        op, pos_indices, average=average)
-    return (pr, op)
+    cm, op = _streaming_confusion_matrix(labels, predictions, num_classes, weights)
+    pr, _, _ = metrics_from_confusion_matrix(cm, pos_indices, average=average)
+    op, _, _ = metrics_from_confusion_matrix(op, pos_indices, average=average)
+    return pr, op
 
 
 def recall(labels, predictions, num_classes, pos_indices=None, weights=None,
@@ -85,7 +81,7 @@ def recall(labels, predictions, num_classes, pos_indices=None, weights=None,
         cm, pos_indices, average=average)
     _, op, _ = metrics_from_confusion_matrix(
         op, pos_indices, average=average)
-    return (re, op)
+    return re, op
 
 
 def f1(labels, predictions, num_classes, pos_indices=None, weights=None,
@@ -125,13 +121,10 @@ def fbeta(labels, predictions, num_classes, pos_indices=None, weights=None,
     -------
     tuple of (scalar float Tensor, update_op)
     """
-    cm, op = _streaming_confusion_matrix(
-        labels, predictions, num_classes, weights)
-    _, _, fbeta = metrics_from_confusion_matrix(
-        cm, pos_indices, average=average, beta=beta)
-    _, _, op = metrics_from_confusion_matrix(
-        op, pos_indices, average=average, beta=beta)
-    return (fbeta, op)
+    cm, op = _streaming_confusion_matrix(labels, predictions, num_classes, weights)
+    _, _, fbeta = metrics_from_confusion_matrix(cm, pos_indices, average=average, beta=beta)
+    _, _, op = metrics_from_confusion_matrix(op, pos_indices, average=average, beta=beta)
+    return fbeta, op
 
 
 def safe_div(numerator, denominator):

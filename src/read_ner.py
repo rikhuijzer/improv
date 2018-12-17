@@ -6,12 +6,10 @@ from itertools import chain
 
 @lru_cache(maxsize=1)
 def get_ner_lines(filename: Path) -> List[List[str]]:
-    """Returns list of two strings. For example:
+    """Returns list of list of two strings. For example inside the list:
         ['O O O O B-StationDest O O']
         ['i want to go to marienplatz when is']
-        Tokens are separated by spaces. New sentences are ignored.
-        (Which is very odd considering BERT should be able to handle that information.)
-        AH! The code assumes every line ends with a dot.
+        Tokens are separated by spaces.
     """
     with open(str(filename)) as f:
         lines = []
@@ -36,6 +34,9 @@ def get_ner_lines(filename: Path) -> List[List[str]]:
         return lines
 
 
+bert_tokens = ['[CLS]', '[SEP]', 'X']
+
+
 @lru_cache(maxsize=1)
 def get_unique_labels(folder: Path) -> Tuple[str]:
     """Returns unique labels for some NER file. Using tuple since this function should always return same order."""
@@ -48,4 +49,12 @@ def get_unique_labels(folder: Path) -> Tuple[str]:
     filenames = [folder / 'test.txt', folder / 'train.txt']
     entities_per_file = map(helper, filenames)
     all_entities = set(chain(*entities_per_file))
+    all_entities.update(bert_tokens)
     return tuple(all_entities)
+
+
+def get_interesting_labels_indexes(unique_labels: Tuple[str]) -> List[int]:
+    """Used for metrics"""
+    def is_interesting(label: str) -> bool:
+        return label not in bert_tokens
+    return [i for i, label in enumerate(unique_labels) if is_interesting(label)]

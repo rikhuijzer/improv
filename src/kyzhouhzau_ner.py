@@ -11,93 +11,18 @@ from __future__ import print_function
 
 import collections
 import os
+import pickle
+from pathlib import Path
+
+import tensorflow as tf
+
+import src.kyzhouhzau_tf_metrics as tf_metrics
 import src.modeling as modeling
 import src.optimization as optimization
 import src.tokenization as tokenization
-import tensorflow as tf
-from sklearn.metrics import f1_score, precision_score, recall_score
-from tensorflow.python.ops import math_ops
-import src.kyzhouhzau_tf_metrics as tf_metrics
-import pickle
-from typing import List
 from src.config import HParams
-
-flags = tf.flags
-
-FLAGS = flags.FLAGS
-
-flags.DEFINE_string(
-    "data_dir", None,
-    "The input datadir.",
-)
-
-flags.DEFINE_string(
-    "bert_config_file", None,
-    "The config json file corresponding to the pre-trained BERT model."
-)
-
-flags.DEFINE_string(
-    "task_name", None, "The name of the task to train."
-)
-
-flags.DEFINE_string(
-    "output_dir", None,
-    "The output directory where the model checkpoints will be written."
-)
-
-# other parameters
-flags.DEFINE_string(
-    "init_checkpoint", None,
-    "Initial checkpoint (usually from a pre-trained BERT model)."
-)
-
-flags.DEFINE_bool(
-    "do_lower_case", True,
-    "Whether to lower case the input text."
-)
-
-flags.DEFINE_integer(
-    "max_seq_length", 128,
-    "The maximum total input sequence length after WordPiece tokenization."
-)
-
-flags.DEFINE_bool(
-    "do_train", False,
-    "Whether to run training."
-)
-flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
-
-flags.DEFINE_bool("do_eval", False, "Whether to run eval on the dev set.")
-
-flags.DEFINE_bool("do_predict", False, "Whether to run the model in inference mode on the test set.")
-
-flags.DEFINE_integer("train_batch_size", 32, "Total batch size for training.")
-
-flags.DEFINE_integer("eval_batch_size", 8, "Total batch size for eval.")
-
-flags.DEFINE_integer("predict_batch_size", 8, "Total batch size for predict.")
-
-flags.DEFINE_float("learning_rate", 5e-5, "The initial learning rate for Adam.")
-
-flags.DEFINE_float("num_train_epochs", 3.0, "Total number of training epochs to perform.")
-
-flags.DEFINE_float(
-    "warmup_proportion", 0.1,
-    "Proportion of training to perform linear learning rate warmup for. "
-    "E.g., 0.1 = 10% of training.")
-
-flags.DEFINE_integer("save_checkpoints_steps", 1000,
-                     "How often to save the model checkpoint.")
-
-flags.DEFINE_integer("iterations_per_loop", 1000,
-                     "How many steps to make in each estimator call.")
-
-flags.DEFINE_string("vocab_file", None,
-                    "The vocabulary file that the BERT model was trained on.")
-tf.flags.DEFINE_string("master", None, "[Optional] TensorFlow master URL.")
-flags.DEFINE_integer(
-    "num_tpu_cores", 8,
-    "Only used if `use_tpu` is True. Total number of TPU cores to use.")
+from src.read_ner import get_ner_lines, get_unique_labels, get_interesting_labels_indexes
+from src.config import get_debug_hparams
 
 
 class InputExample(object):
@@ -147,33 +72,8 @@ class DataProcessor(object):
     @classmethod
     def _read_data(cls, input_file):
         """Reads a BIO data."""
-        with open(input_file) as f:
-            lines = []
-            words = []
-            labels = []
-            for line in f:
-                contents = line.strip()
-                word = line.strip().split(' ')[0]
-                label = line.strip().split(' ')[-1]
-                if contents.startswith("-DOCSTART-"):  # this condition is false most of the time
-                    words.append('')
-                    continue
-                if len(contents) == 0:  # this condition is false most of the time
-                    l = ' '.join([label for label in labels if len(label) > 0])
-                    w = ' '.join([word for word in words if len(word) > 0])
-
-                    # append and reset words and labels
-                    lines.append([l, w])
-                    words = []
-                    labels = []
-                    continue
-                words.append(word)
-                labels.append(label)
-            return lines
-        # this seems to create a list containing two items.
-        # the first being item 0, containing two strings. The first having tags and second text
-        # the second contains the same, but is much shorter. Might be mistake?
-        # based on the code it seems that the list is split for each -DOCSTART-. Might be caused by that.
+        from src.read_ner import get_ner_lines
+        return get_ner_lines(Path(input_file))
 
 
 class NerProcessor(DataProcessor):
@@ -182,21 +82,23 @@ class NerProcessor(DataProcessor):
 
     def get_train_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "train.txt")), "train"
+            get_ner_lines(Path(data_dir) / 'train.txt'), "train"
         )
 
     def get_dev_examples(self, data_dir):
+        tf.logging.warning('Returned dev examples are from test set.')
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "dev.txt")), "dev"
+            get_ner_lines(Path(data_dir) / 'test.txt'), "dev"
         )
 
     def get_test_examples(self, data_dir):
         return self._create_example(
-            self._read_data(os.path.join(data_dir, "test.txt")), "test")
+            get_ner_lines(Path(data_dir) / 'test.txt'), "test"
+        )
 
     def get_labels(self):
-        raise NotImplementedError
-        # return get_unique_labels(self.h_params)
+        from src.read_ner import get_unique_labels
+        return get_unique_labels(self.h_params.data_dir)
         # return ["B-MISC", "I-MISC", "O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X", "[CLS]", "[SEP]"]
 
     def _create_example(self, lines, set_type):
@@ -209,9 +111,9 @@ class NerProcessor(DataProcessor):
         return examples
 
 
-def write_tokens(tokens, mode):
+def write_tokens(tokens, mode, h_params):
     if mode == "test":
-        path = os.path.join(FLAGS.output_dir, "token_" + mode + ".txt")
+        path = os.path.join(h_params.output_dir, "token_" + mode + ".txt")
         wf = open(path, 'a')
         for token in tokens:
             if token != "**NULL**":
@@ -219,11 +121,11 @@ def write_tokens(tokens, mode):
         wf.close()
 
 
-def convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer, mode):
+def convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer, mode, h_params):
     label_map = {}
-    for (i, label) in enumerate(label_list, 1):
+    for i, label in enumerate(label_list, 1):
         label_map[label] = i
-    with open('./output/label2id.pkl', 'wb') as w:
+    with open(os.path.join(h_params.output_dir, 'label2id.pkl'), 'wb') as w:
         pickle.dump(label_map, w)
     textlist = example.text.split(' ')
     labellist = example.label.split(' ')
@@ -293,18 +195,17 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         label_ids=label_ids,
         # label_mask = label_mask
     )
-    write_tokens(ntokens, mode)
+    write_tokens(ntokens, mode, h_params)
     return feature
 
 
-def filed_based_convert_examples_to_features(
-        examples, label_list, max_seq_length, tokenizer, output_file, mode=None
-):
+def filed_based_convert_examples_to_features(examples, label_list, max_seq_length, tokenizer,
+                                             output_file, h_params, mode=None):
     writer = tf.python_io.TFRecordWriter(output_file)
     for (ex_index, example) in enumerate(examples):
         if ex_index % 5000 == 0:
             tf.logging.info("Writing example %d of %d" % (ex_index, len(examples)))
-        feature = convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer, mode)
+        feature = convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer, mode, h_params)
 
         def create_int_feature(values):
             f = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
@@ -356,7 +257,7 @@ def file_based_input_fn_builder(input_file, seq_length, is_training, drop_remain
 
 
 def create_model(bert_config, is_training, input_ids, input_mask,
-                 segment_ids, labels, num_labels, use_one_hot_embeddings):
+                 segment_ids, labels, num_labels, use_one_hot_embeddings, h_params):
     model = modeling.BertModel(
         config=bert_config,
         is_training=is_training,
@@ -383,7 +284,9 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1, FLAGS.max_seq_length, 13])
+        logits = tf.reshape(logits, [-1,
+                                     h_params.max_seq_length,
+                                     len(get_unique_labels(h_params.data_dir)) + 1])
         # mask = tf.cast(input_mask,tf.float32)
         # loss = tf.contrib.seq2seq.sequence_loss(logits,labels,mask)
         # return (loss, logits, predict)
@@ -400,7 +303,13 @@ def create_model(bert_config, is_training, input_ids, input_mask,
 
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      num_train_steps, num_warmup_steps, use_tpu,
-                     use_one_hot_embeddings):
+                     use_one_hot_embeddings, h_params):
+
+    init_checkpoint = str(init_checkpoint)
+    unique_labels = get_unique_labels(h_params.data_dir)
+    interesting_labels_indexes = get_interesting_labels_indexes(unique_labels)
+    n_labels = len(unique_labels) + 1
+
     def model_fn(features, labels, mode, params):
         tf.logging.info("*** Features ***")
         for name in sorted(features.keys()):
@@ -414,12 +323,12 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
 
         (total_loss, per_example_loss, logits, predicts) = create_model(
             bert_config, is_training, input_ids, input_mask, segment_ids, label_ids,
-            num_labels, use_one_hot_embeddings)
+            num_labels, use_one_hot_embeddings, h_params)
         tvars = tf.trainable_variables()
         scaffold_fn = None
         if init_checkpoint:
-            (assignment_map, initialized_variable_names) = modeling.get_assignment_map_from_checkpoint(tvars,
-                                                                                                       init_checkpoint)
+            assignment_map, initialized_variable_names = modeling.get_assignment_map_from_checkpoint(tvars,
+                                                                                                     init_checkpoint)
             tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
             if use_tpu:
                 def tpu_scaffold():
@@ -435,9 +344,9 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             init_string = ""
             if var.name in initialized_variable_names:
                 init_string = ", *INIT_FROM_CKPT*"
-            tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-                            init_string)
+            tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape, init_string)
         output_spec = None
+
         if mode == tf.estimator.ModeKeys.TRAIN:
             train_op = optimization.create_optimizer(
                 total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
@@ -446,14 +355,14 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 loss=total_loss,
                 train_op=train_op,
                 scaffold_fn=scaffold_fn)
-        elif mode == tf.estimator.ModeKeys.EVAL:
 
+        elif mode == tf.estimator.ModeKeys.EVAL:
             def metric_fn(per_example_loss, label_ids, logits):
                 # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                precision = tf_metrics.precision(label_ids, predictions, 13, [1, 2, 4, 5, 6, 7, 8, 9], average="macro")
-                recall = tf_metrics.recall(label_ids, predictions, 13, [1, 2, 4, 5, 6, 7, 8, 9], average="macro")
-                f = tf_metrics.f1(label_ids, predictions, 13, [1, 2, 4, 5, 6, 7, 8, 9], average="macro")
+                precision = tf_metrics.precision(label_ids, predictions, n_labels, interesting_labels_indexes, average="macro")
+                recall = tf_metrics.recall(label_ids, predictions, n_labels, interesting_labels_indexes, average="macro")
+                f = tf_metrics.f1(label_ids, predictions, n_labels, interesting_labels_indexes, average="macro")
                 #
                 return {
                     "eval_precision": precision,
@@ -478,145 +387,143 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     return model_fn
 
 
-def main(_):
+def main(h_params: HParams):
     tf.logging.set_verbosity(tf.logging.INFO)
     processors = {
         "ner": NerProcessor
     }
-    if not FLAGS.do_train and not FLAGS.do_eval:
-        raise ValueError("At least one of `do_train` or `do_eval` must be True.")
 
-    bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
+    bert_config = modeling.BertConfig.from_json_file(h_params.bert_config_file)
 
-    if FLAGS.max_seq_length > bert_config.max_position_embeddings:
+    if h_params.max_seq_length > bert_config.max_position_embeddings:
         raise ValueError(
             "Cannot use sequence length %d because the BERT model "
             "was only trained up to sequence length %d" %
-            (FLAGS.max_seq_length, bert_config.max_position_embeddings))
+            (h_params.max_seq_length, bert_config.max_position_embeddings))
 
-    task_name = FLAGS.task_name.lower()
-    if task_name not in processors:
-        raise ValueError("Task not found: %s" % (task_name))
-    processor = processors[task_name]()
+    processor = processors['ner'](h_params)
 
     label_list = processor.get_labels()
 
     tokenizer = tokenization.FullTokenizer(
-        vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
+        vocab_file=h_params.vocab_file, do_lower_case=h_params.do_lower_case)
     tpu_cluster_resolver = None
-    if FLAGS.use_tpu and FLAGS.tpu_name:
+    if h_params.use_tpu and h_params.tpu_name:
         tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
-            FLAGS.tpu_name, zone=FLAGS.tpu_zone, project=FLAGS.gcp_project)
+            h_params.tpu_name, zone=h_params.tpu_zone, project=h_params.gcp_project)
 
     is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
 
     run_config = tf.contrib.tpu.RunConfig(
         cluster=tpu_cluster_resolver,
-        master=FLAGS.master,
-        model_dir=FLAGS.output_dir,
-        save_checkpoints_steps=FLAGS.save_checkpoints_steps,
+        master=h_params.master,
+        model_dir=h_params.output_dir,
+        save_checkpoints_steps=h_params.save_checkpoints_steps,
         tpu_config=tf.contrib.tpu.TPUConfig(
-            iterations_per_loop=FLAGS.iterations_per_loop,
-            num_shards=FLAGS.num_tpu_cores,
+            iterations_per_loop=h_params.iterations_per_loop,
+            num_shards=h_params.num_tpu_cores,
             per_host_input_for_training=is_per_host))
 
     train_examples = None
     num_train_steps = None
     num_warmup_steps = None
 
-    if FLAGS.do_train:
-        train_examples = processor.get_train_examples(FLAGS.data_dir)
-        num_train_steps = int(
-            len(train_examples) / FLAGS.train_batch_size * FLAGS.num_train_epochs)
-        num_warmup_steps = int(num_train_steps * FLAGS.warmup_proportion)
+    if h_params.do_train:
+        train_examples = processor.get_train_examples(h_params.data_dir)
+        num_train_steps = int(len(train_examples) / h_params.train_batch_size * h_params.num_train_epochs)
+        num_warmup_steps = int(num_train_steps * h_params.warmup_proportion)
 
     model_fn = model_fn_builder(
         bert_config=bert_config,
         num_labels=len(label_list) + 1,
-        init_checkpoint=FLAGS.init_checkpoint,
-        learning_rate=FLAGS.learning_rate,
+        init_checkpoint=h_params.init_checkpoint,
+        learning_rate=h_params.learning_rate,
         num_train_steps=num_train_steps,
         num_warmup_steps=num_warmup_steps,
-        use_tpu=FLAGS.use_tpu,
-        use_one_hot_embeddings=FLAGS.use_tpu)
+        use_tpu=h_params.use_tpu,
+        use_one_hot_embeddings=h_params.use_tpu,
+        h_params=h_params)
 
     estimator = tf.contrib.tpu.TPUEstimator(
-        use_tpu=FLAGS.use_tpu,
+        use_tpu=h_params.use_tpu,
         model_fn=model_fn,
         config=run_config,
-        train_batch_size=FLAGS.train_batch_size,
-        eval_batch_size=FLAGS.eval_batch_size,
-        predict_batch_size=FLAGS.predict_batch_size)
+        train_batch_size=h_params.train_batch_size,
+        eval_batch_size=h_params.eval_batch_size,
+        predict_batch_size=h_params.predict_batch_size)
 
-    if FLAGS.do_train:
-        train_file = os.path.join(FLAGS.output_dir, "train.tf_record")
+    tf.gfile.MakeDirs(h_params.output_dir)
+    if h_params.do_train:
+        train_file = os.path.join(h_params.output_dir, "train.tf_record")
         filed_based_convert_examples_to_features(
-            train_examples, label_list, FLAGS.max_seq_length, tokenizer, train_file)
+            train_examples, label_list, h_params.max_seq_length, tokenizer, train_file, h_params)
         tf.logging.info("***** Running training *****")
         tf.logging.info("  Num examples = %d", len(train_examples))
-        tf.logging.info("  Batch size = %d", FLAGS.train_batch_size)
+        tf.logging.info("  Batch size = %d", h_params.train_batch_size)
         tf.logging.info("  Num steps = %d", num_train_steps)
         train_input_fn = file_based_input_fn_builder(
             input_file=train_file,
-            seq_length=FLAGS.max_seq_length,
+            seq_length=h_params.max_seq_length,
             is_training=True,
             drop_remainder=True)
         estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
-    if FLAGS.do_eval:
-        eval_examples = processor.get_dev_examples(FLAGS.data_dir)
-        eval_file = os.path.join(FLAGS.output_dir, "eval.tf_record")
+
+    if h_params.do_eval:
+        eval_examples = processor.get_dev_examples(h_params.data_dir)
+        eval_file = os.path.join(h_params.output_dir, "eval.tf_record")
         filed_based_convert_examples_to_features(
-            eval_examples, label_list, FLAGS.max_seq_length, tokenizer, eval_file)
+            eval_examples, label_list, h_params.max_seq_length, tokenizer, eval_file, h_params)
 
         tf.logging.info("***** Running evaluation *****")
         tf.logging.info("  Num examples = %d", len(eval_examples))
-        tf.logging.info("  Batch size = %d", FLAGS.eval_batch_size)
+        tf.logging.info("  Batch size = %d", h_params.eval_batch_size)
         eval_steps = None
-        if FLAGS.use_tpu:
-            eval_steps = int(len(eval_examples) / FLAGS.eval_batch_size)
-        eval_drop_remainder = True if FLAGS.use_tpu else False
+        if h_params.use_tpu:
+            eval_steps = int(len(eval_examples) / h_params.eval_batch_size)
+        eval_drop_remainder = h_params.use_tpu
         eval_input_fn = file_based_input_fn_builder(
             input_file=eval_file,
-            seq_length=FLAGS.max_seq_length,
+            seq_length=h_params.max_seq_length,
             is_training=False,
             drop_remainder=eval_drop_remainder)
         result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
-        output_eval_file = os.path.join(FLAGS.output_dir, "eval_results.txt")
+        output_eval_file = os.path.join(h_params.output_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
             tf.logging.info("***** Eval results *****")
             for key in sorted(result.keys()):
                 tf.logging.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
-    if FLAGS.do_predict:
-        token_path = os.path.join(FLAGS.output_dir, "token_test.txt")
-        with open('./output/label2id.pkl', 'rb') as rf:
+
+    if h_params.do_predict:
+        token_path = os.path.join(h_params.output_dir, "token_test.txt")
+        with open(os.path.join(h_params.output_dir, 'label2id.pkl'), 'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value: key for key, value in label2id.items()}
         if os.path.exists(token_path):
             os.remove(token_path)
-        predict_examples = processor.get_test_examples(FLAGS.data_dir)
+        predict_examples = processor.get_test_examples(h_params.data_dir)
 
-        predict_file = os.path.join(FLAGS.output_dir, "predict.tf_record")
+        predict_file = os.path.join(h_params.output_dir, "predict.tf_record")
         filed_based_convert_examples_to_features(predict_examples, label_list,
-                                                 FLAGS.max_seq_length, tokenizer,
-                                                 predict_file, mode="test")
+                                                 h_params.max_seq_length, tokenizer,
+                                                 predict_file, h_params, mode="test")
 
         tf.logging.info("***** Running prediction*****")
         tf.logging.info("  Num examples = %d", len(predict_examples))
-        tf.logging.info("  Batch size = %d", FLAGS.predict_batch_size)
-        if FLAGS.use_tpu:
+        tf.logging.info("  Batch size = %d", h_params.predict_batch_size)
+        if h_params.use_tpu:
             # Warning: According to tpu_estimator.py Prediction on TPU is an
             # experimental feature and hence not supported here
             raise ValueError("Prediction in TPU not supported")
-        predict_drop_remainder = True if FLAGS.use_tpu else False
+        predict_drop_remainder = h_params.use_tpu
         predict_input_fn = file_based_input_fn_builder(
             input_file=predict_file,
-            seq_length=FLAGS.max_seq_length,
+            seq_length=h_params.max_seq_length,
             is_training=False,
             drop_remainder=predict_drop_remainder)
 
         result = estimator.predict(input_fn=predict_input_fn)
-        output_predict_file = os.path.join(FLAGS.output_dir, "label_test.txt")
+        output_predict_file = os.path.join(h_params.output_dir, "label_test.txt")
         with open(output_predict_file, 'w') as writer:
             for prediction in result:
                 output_line = "\n".join(id2label[id] for id in prediction if id != 0) + "\n"
@@ -624,9 +531,4 @@ def main(_):
 
 
 if __name__ == "__main__":
-    flags.mark_flag_as_required("data_dir")
-    flags.mark_flag_as_required("task_name")
-    flags.mark_flag_as_required("vocab_file")
-    flags.mark_flag_as_required("bert_config_file")
-    flags.mark_flag_as_required("output_dir")
     tf.app.run()
