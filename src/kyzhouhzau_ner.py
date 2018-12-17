@@ -494,6 +494,7 @@ def main(h_params: HParams):
                 tf.logging.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
+    h_params = h_params._replace(use_tpu=False)
     if h_params.do_predict:
         token_path = os.path.join(h_params.local_dir, "token_test.txt")
         with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
