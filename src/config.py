@@ -7,7 +7,8 @@ HParams = NamedTuple('Params', [
     ('bert_config_file', Path),
     ('task_name', str),
     ('vocab_file', Path),
-    ('output_dir', str),  # using string to easy TPU location definition
+    ('output_dir', str),  # using string for easy TPU location definition
+    ('local_dir', str),  # directory to store simple files (not checkpoint)
     ('init_checkpoint', Path),  # Initial checkpoint (usually from a pre-trained BERT model).
     ('do_lower_case', bool),  # should be True for uncased and False otherwise
     ('max_seq_length', int),  # Total input sentence length after WordPiece tokenization. Truncated and padded to match.
@@ -48,6 +49,7 @@ def get_debug_hparams() -> HParams:
         task_name=task_name,
         vocab_file=bert_pretrained_dir / 'vocab.txt',
         output_dir=str(get_project_root() / 'tmp' / task_name / output_dir_name),
+        local_dir=str(get_project_root() / 'tmp' / task_name / output_dir_name),
         init_checkpoint=bert_pretrained_dir / 'bert_model.ckpt',
         do_lower_case=bert_model.startswith('uncased'),
         max_seq_length=128,
@@ -81,6 +83,7 @@ def get_hparams() -> HParams:
         task_name=None,
         vocab_file=None,
         output_dir=None,
+        local_dir=None,
         init_checkpoint=None,
         do_lower_case=True,
         max_seq_length=128,

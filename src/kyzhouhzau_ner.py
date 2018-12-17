@@ -113,7 +113,7 @@ class NerProcessor(DataProcessor):
 
 def write_tokens(tokens, mode, h_params):
     if mode == "test":
-        path = os.path.join(h_params.output_dir, "token_" + mode + ".txt")
+        path = os.path.join(h_params.local_dir, "token_" + mode + ".txt")
         wf = open(path, 'a')
         for token in tokens:
             if token != "**NULL**":
@@ -125,7 +125,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     label_map = {}
     for i, label in enumerate(label_list, 1):
         label_map[label] = i
-    with open(os.path.join(h_params.data_dir, 'label2id.pkl'), 'wb') as w:
+    with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'wb') as w:
         pickle.dump(label_map, w)
     textlist = example.text.split(' ')
     labellist = example.label.split(' ')
@@ -487,7 +487,7 @@ def main(h_params: HParams):
             is_training=False,
             drop_remainder=eval_drop_remainder)
         result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
-        output_eval_file = os.path.join(h_params.output_dir, "eval_results.txt")
+        output_eval_file = os.path.join(h_params.local_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
             tf.logging.info("***** Eval results *****")
             for key in sorted(result.keys()):
@@ -495,8 +495,8 @@ def main(h_params: HParams):
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
     if h_params.do_predict:
-        token_path = os.path.join(h_params.output_dir, "token_test.txt")
-        with open(os.path.join(h_params.data_dir, 'label2id.pkl'), 'rb') as rf:
+        token_path = os.path.join(h_params.local_dir, "token_test.txt")
+        with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value: key for key, value in label2id.items()}
         if os.path.exists(token_path):
@@ -523,7 +523,7 @@ def main(h_params: HParams):
             drop_remainder=predict_drop_remainder)
 
         result = estimator.predict(input_fn=predict_input_fn)
-        output_predict_file = os.path.join(h_params.output_dir, "label_test.txt")
+        output_predict_file = os.path.join(h_params.local_dir, "label_test.txt")
         with open(output_predict_file, 'w') as writer:
             for prediction in result:
                 output_line = "\n".join(id2label[id] for id in prediction if id != 0) + "\n"
