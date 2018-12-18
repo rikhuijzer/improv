@@ -58,3 +58,4 @@ def get_interesting_labels_indexes(unique_labels: Tuple[str]) -> List[int]:
     def is_interesting(label: str) -> bool:
         return label not in bert_tokens
     return [i for i, label in enumerate(unique_labels) if is_interesting(label)]
+

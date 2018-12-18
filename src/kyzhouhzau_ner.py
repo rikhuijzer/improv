@@ -22,7 +22,9 @@ import src.optimization as optimization
 import src.tokenization as tokenization
 from src.config import HParams
 from src.read_ner import get_ner_lines, get_unique_labels, get_interesting_labels_indexes
-from src.config import get_debug_hparams
+from typing import Iterable, List
+from numpy import ndarray
+from src.my_types import NERData
 
 
 class InputExample(object):
@@ -304,7 +306,6 @@ def create_model(bert_config, is_training, input_ids, input_mask,
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      num_train_steps, num_warmup_steps, use_tpu,
                      use_one_hot_embeddings, h_params):
-
     init_checkpoint = str(init_checkpoint)
     unique_labels = get_unique_labels(h_params.data_dir)
     interesting_labels_indexes = get_interesting_labels_indexes(unique_labels)
@@ -360,8 +361,10 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             def metric_fn(per_example_loss, label_ids, logits):
                 # def metric_fn(label_ids, logits):
                 predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-                precision = tf_metrics.precision(label_ids, predictions, n_labels, interesting_labels_indexes, average="weighted")
-                recall = tf_metrics.recall(label_ids, predictions, n_labels, interesting_labels_indexes, average="weighted")
+                precision = tf_metrics.precision(label_ids, predictions, n_labels, interesting_labels_indexes,
+                                                 average="weighted")
+                recall = tf_metrics.recall(label_ids, predictions, n_labels, interesting_labels_indexes,
+                                           average="weighted")
                 f = tf_metrics.f1(label_ids, predictions, n_labels, interesting_labels_indexes, average="weighted")
                 #
                 return {
@@ -387,7 +390,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     return model_fn
 
 
-def main(h_params: HParams):
+def run(h_params: HParams):
     tf.logging.set_verbosity(tf.logging.INFO)
     processors = {
         "ner": NerProcessor
@@ -494,8 +497,8 @@ def main(h_params: HParams):
                 tf.logging.info("  %s = %s", key, str(result[key]))
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
-    h_params = h_params._replace(use_tpu=False)
     if h_params.do_predict:
+        h_params = h_params._replace(use_tpu=False)
         token_path = os.path.join(h_params.local_dir, "token_test.txt")
         with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
             label2id = pickle.load(rf)
@@ -524,15 +527,59 @@ def main(h_params: HParams):
             drop_remainder=predict_drop_remainder)
 
         result = estimator.predict(input_fn=predict_input_fn)
-        output_predict_file = os.path.join(h_params.local_dir, "label_test.txt")
-        with open(output_predict_file, 'w') as writer:
-            # Colab crashes on next line, it seems when unpacking results.
-            # TPUEstimatorSpec.predictions must be dict of Tensors.
-            writer.write(str(result))
-            
-            for prediction in result:
-                output_line = "\n".join(id2label[id] for id in prediction if id != 0) + "\n"
-                writer.write(output_line)
+        return result
+
+
+def get_pred_true(h_params: HParams) -> Iterable[NERData]:
+    """Get true values for prediction."""
+    lines = get_ner_lines(Path(h_params.data_dir) / 'test.txt')
+
+    def helper(item: List[str]) -> NERData:
+        sentence = item[1].split(' ')
+        true = item[0].split(' ')
+        pred = []
+        return NERData(sentence, true, pred)
+    return map(helper, lines)
+
+
+def convert_ner_str(ner_data: NERData) -> str:
+    """Format as string to look like:
+        text: ['theresienstraße', 'to', 'assling']
+        true: ['B-StationStart', 'O', 'B-StationDest']
+        pred: ['I-StationDest', 'B-Criterion', 'X'])
+        <empty line>
+    """
+    out = 'text: {}\ntrue: {}\npred: {}\n\n'.format(ner_data.text, ner_data.true, ner_data.pred)
+    return out
+
+
+def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
+    """Evaluate prediction result
+        result is a generator which creates one ndarray of length 128 for each prediction"""
+    """Note that evaluation code by kyzhouhzau is available in Github"""
+
+    # PRINTING IS GOOD ENOUGH FOR NOW. FIRST SEE WHETHER POSSIBLE TO UPDATE MODEL
+
+    # label2id.pkl is different for each run (since set in get_unique_labels is not ordered)
+    with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
+        label2id = pickle.load(rf)
+        id2label = {value: key for key, value in label2id.items()}
+
+    ner_datas = get_pred_true(h_params)
+    updated_ner_datas = []
+    for ner_data, prediction in zip(ner_datas, result):
+        # print('prediction:\n{}, type: {}'.format(prediction, type(prediction)))
+        n = len(ner_data.text)
+        pred = list(id2label[pred_id] for i, pred_id in enumerate(prediction) if pred_id != 0 and i < n)
+        updated_ner_datas.append(NERData(ner_data.text, ner_data.true, pred))
+
+    for ner_data in updated_ner_datas:
+        print(convert_ner_str(ner_data))
+
+
+def main(h_params: HParams):
+    result = run(h_params)
+    evaluate_pred_result(h_params, result)
 
 
 if __name__ == "__main__":
