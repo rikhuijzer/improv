@@ -524,7 +524,7 @@ def run(h_params: HParams):
         if h_params.use_tpu:
             # Warning: According to tpu_estimator.py Prediction on TPU is an
             # experimental feature and hence not supported here
-            raise tf.logging.warning("Prediction in TPU not supported")
+            tf.logging.warning("Prediction in TPU not supported")
 
         predict_drop_remainder = h_params.use_tpu
         predict_input_fn = file_based_input_fn_builder(
