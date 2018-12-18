@@ -150,9 +150,9 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     segment_ids = []
     label_ids = []
     # ntokens.append("[CLS]")  # useless, should not be appended i think
-    segment_ids.append(0)
+    # segment_ids.append(0)
+    # label_ids.append(label_map["[CLS]"])  # also removed
     # append("O") or append("[CLS]") not sure!
-    label_ids.append(label_map["[CLS]"])
     for i, token in enumerate(tokens):
         ntokens.append(token)
         segment_ids.append(0)
@@ -174,10 +174,10 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         # label_mask.append(0)
     # print(len(input_ids))
 
-    # assert len(input_ids) == max_seq_length
-    # assert len(input_mask) == max_seq_length
-    # assert len(segment_ids) == max_seq_length
-    # assert len(label_ids) == max_seq_length
+    assert len(input_ids) == max_seq_length
+    assert len(input_mask) == max_seq_length
+    assert len(segment_ids) == max_seq_length
+    assert len(label_ids) == max_seq_length
     # assert len(label_mask) == max_seq_length
 
     if ex_index < 5:
