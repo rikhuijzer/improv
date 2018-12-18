@@ -286,7 +286,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1,
+        logits = tf.reshape(logits, [-1,  # -1 means infer from total number of elements inside tensor should not change
                                      h_params.max_seq_length,
                                      len(get_unique_labels(h_params.data_dir)) + 1])
         # mask = tf.cast(input_mask,tf.float32)
@@ -294,7 +294,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         # return (loss, logits, predict)
         ##########################################################################
         log_probs = tf.nn.log_softmax(logits, axis=-1)
-        one_hot_labels = tf.one_hot(labels, depth=num_labels, dtype=tf.float32)
+        one_hot_labels = tf.one_hot(indices=labels, depth=num_labels, dtype=tf.float32)
         per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
         loss = tf.reduce_sum(per_example_loss)
         probabilities = tf.nn.softmax(logits, axis=-1)
@@ -567,8 +567,6 @@ def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
     """Evaluate prediction result
         result is a generator which creates one ndarray of length 128 for each prediction"""
     """Note that evaluation code by kyzhouhzau is available in Github"""
-
-    # PRINTING IS GOOD ENOUGH FOR NOW. FIRST SEE WHETHER POSSIBLE TO UPDATE MODEL
 
     # label2id.pkl is different for each run (since set in get_unique_labels is not ordered)
     with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
