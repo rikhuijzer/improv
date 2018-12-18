@@ -502,7 +502,7 @@ def run(h_params: HParams):
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
     if h_params.do_predict:
-        # h_params = h_params._replace(use_tpu=False)
+        h_params = h_params._replace(use_tpu=False)
 
         token_path = os.path.join(h_params.local_dir, "token_test.txt")
         with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
@@ -578,13 +578,16 @@ def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
     ner_datas = get_pred_true(h_params)
     updated_ner_datas = []
     for ner_data, prediction in zip(ner_datas, result):
-        # print('prediction:\n{}, type: {}'.format(prediction, type(prediction)))
         n = len(ner_data.text)
-        pred = list(id2label[pred_id] for i, pred_id in enumerate(prediction) if pred_id != 0 and i < n)
+
+        pred = list(id2label[pred_id] if pred_id != 0 else '<0>' for i, pred_id in enumerate(prediction) if i <= n)
         updated_ner_datas.append(NERData(ner_data.text, ner_data.true, pred))
 
     for ner_data in updated_ner_datas:
         print(convert_ner_str(ner_data))
+
+    with open(os.path.join(h_params.local_dir, 'ner_data.txt'), 'w') as w:
+        w.writelines(map(lambda data: convert_ner_str(data), updated_ner_datas))
 
 
 def main(h_params: HParams):
