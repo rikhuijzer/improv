@@ -298,8 +298,13 @@ def create_model(bert_config, is_training, input_ids, input_mask,
         per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
         loss = tf.reduce_sum(per_example_loss)
         probabilities = tf.nn.softmax(logits, axis=-1)
+
+        # TPUEstimatorSpec.predictions must be dict of Tensors.
         predict = tf.argmax(probabilities, axis=-1)
-        return loss, per_example_loss, logits, predict
+
+        # EXPERIMENT
+        predict_dict = {'predictions': predict}
+        return loss, per_example_loss, logits, predict_dict
         ##########################################################################
 
 
@@ -381,7 +386,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 loss=total_loss,
                 eval_metrics=eval_metrics,
                 scaffold_fn=scaffold_fn)
-        else:
+
+        else:  # if ModeKeys.PREDICT
             output_spec = tf.contrib.tpu.TPUEstimatorSpec(
                 mode=mode, predictions=predicts, scaffold_fn=scaffold_fn
             )
@@ -527,6 +533,10 @@ def run(h_params: HParams):
             drop_remainder=predict_drop_remainder)
 
         result = estimator.predict(input_fn=predict_input_fn)
+
+        # EXPERIMENTAL
+        result = list(result)
+        result = [pred['predictions'] for pred in result]
         return result
 
 
