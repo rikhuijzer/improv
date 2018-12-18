@@ -301,9 +301,7 @@ def create_model(bert_config, is_training, input_ids, input_mask,
 
         # TPUEstimatorSpec.predictions must be dict of Tensors.
         predict = tf.argmax(probabilities, axis=-1)
-
-        # EXPERIMENT
-        predict_dict = {'predictions': predict}
+        predict_dict = {'predictions': predict}  # this way it is not shot down by check in TPUEstimatorSpec
         return loss, per_example_loss, logits, predict_dict
         ##########################################################################
 
@@ -504,7 +502,8 @@ def run(h_params: HParams):
                 writer.write("%s = %s\n" % (key, str(result[key])))
 
     if h_params.do_predict:
-        h_params = h_params._replace(use_tpu=False)
+        # h_params = h_params._replace(use_tpu=False)
+
         token_path = os.path.join(h_params.local_dir, "token_test.txt")
         with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
             label2id = pickle.load(rf)
@@ -521,10 +520,12 @@ def run(h_params: HParams):
         tf.logging.info("***** Running prediction*****")
         tf.logging.info("  Num examples = %d", len(predict_examples))
         tf.logging.info("  Batch size = %d", h_params.predict_batch_size)
+
         if h_params.use_tpu:
             # Warning: According to tpu_estimator.py Prediction on TPU is an
             # experimental feature and hence not supported here
-            raise ValueError("Prediction in TPU not supported")
+            raise tf.logging.warning("Prediction in TPU not supported")
+
         predict_drop_remainder = h_params.use_tpu
         predict_input_fn = file_based_input_fn_builder(
             input_file=predict_file,
@@ -534,7 +535,6 @@ def run(h_params: HParams):
 
         result = estimator.predict(input_fn=predict_input_fn)
 
-        # EXPERIMENTAL
         result = list(result)
         result = [pred['predictions'] for pred in result]
         return result
