@@ -1,3 +1,4 @@
+C FindConnection
 what O
 ' O
 s O
@@ -10,6 +11,7 @@ and O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 what O
 is O
 the O
@@ -21,6 +23,7 @@ and O
 hauptbahnhof B-StationDest
 ? O
 
+C FindConnection
 what O
 ' O
 s O
@@ -33,6 +36,7 @@ and O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -48,6 +52,7 @@ as O
 possible O
 ? O
 
+C FindConnection
 what O
 ' O
 s O
@@ -61,6 +66,7 @@ to O
 lehel B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -76,6 +82,7 @@ as O
 possible O
 ? O
 
+C FindConnection
 could O
 you O
 give O
@@ -90,6 +97,7 @@ alte B-StationDest
 heide I-StationDest
 ? O
 
+C FindConnection
 is O
 there O
 a O
@@ -104,6 +112,7 @@ at O
 pm I-TimeStartTime
 ? O
 
+C FindConnection
 can O
 you O
 find O
@@ -118,6 +127,7 @@ at O
 pm I-TimeStartTime
 ? O
 
+C FindConnection
 i O
 need O
 a O
@@ -135,6 +145,7 @@ at O
 am I-TimeStartTime
 . O
 
+C FindConnection
 in O
 need O
 to O
@@ -155,6 +166,7 @@ garching B-StationStart
 forschungszentrum I-StationStart
 ? O
 
+C FindConnection
 i O
 need O
 to O
@@ -164,6 +176,7 @@ garching B-StationDest
 at O
 9 B-TimeEndTime
 
+C FindConnection
 can O
 i O
 take O
@@ -175,6 +188,7 @@ to O
 hauptbahnhof B-StationDest
 ? O
 
+C FindConnection
 can O
 you O
 find O
@@ -187,6 +201,7 @@ to O
 milbertshofen B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -199,6 +214,7 @@ garching B-StationStart
 forschungszentrum I-StationStart
 ? O
 
+C FindConnection
 can O
 you O
 find O
@@ -210,6 +226,7 @@ to O
 lehel B-StationDest
 ? O
 
+C FindConnection
 is O
 there O
 a O
@@ -220,6 +237,7 @@ to O
 lehel B-StationDest
 ? O
 
+C FindConnection
 is O
 there O
 a O
@@ -233,6 +251,7 @@ around O
 5 B-TimeStartTime
 ? O
 
+C FindConnection
 is O
 there O
 a O
@@ -246,6 +265,7 @@ at O
 pm I-TimeStartTime
 ? O
 
+C FindConnection
 can O
 you O
 tell O
@@ -260,6 +280,7 @@ to O
 quiddestraße B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -268,6 +289,7 @@ to O
 quiddestraße B-StationDest
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -278,6 +300,7 @@ from O
 hauptbahnhof B-StationStart
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -288,6 +311,7 @@ to O
 hauptbahnhof B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -302,6 +326,7 @@ to O
 garching B-StationDest
 ? O
 
+C DepartureTime
 when O
 the O
 next B-Criterion
@@ -314,6 +339,7 @@ is O
 leaving O
 ? O
 
+C FindConnection
 what O
 is O
 the O
@@ -326,6 +352,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -337,6 +364,7 @@ garching B-StationDest
 forschungszentrum I-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -348,6 +376,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -360,6 +389,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -375,6 +405,7 @@ eisner I-StationDest
 straße I-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -385,6 +416,7 @@ from O
 quiddestraße B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -395,6 +427,7 @@ from O
 quiddestraße B-StationStart
 ? O
 
+C DepartureTime
 when O
 the O
 next B-Criterion
@@ -406,6 +439,7 @@ is O
 leaving O
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -416,6 +450,7 @@ from O
 garching B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -426,6 +461,7 @@ from O
 garching B-StationStart
 forschungszentrum I-StationStart
 
+C DepartureTime
 when O
 is O
 the O
@@ -433,6 +469,7 @@ next B-Criterion
 u6 B-Line
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -443,6 +480,7 @@ from O
 garching B-StationStart
 ? O
 
+C DepartureTime
 when O
 the O
 next B-Criterion
@@ -453,6 +491,7 @@ is O
 leaving O
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -462,6 +501,7 @@ leaving O
 in O
 garching B-StationStart
 
+C DepartureTime
 when O
 does O
 the O
@@ -472,6 +512,7 @@ from O
 odeonsplatz B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -482,12 +523,14 @@ from O
 quiddestraße B-StationStart
 ? O
 
+C DepartureTime
 when O
 is O
 the O
 next B-Criterion
 train B-Vehicle
 
+C DepartureTime
 when O
 does O
 the O
@@ -499,6 +542,7 @@ garching B-StationStart
 forschungszentrum I-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -507,6 +551,7 @@ train B-Vehicle
 leaves O
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -517,6 +562,7 @@ in O
 garching B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -529,6 +575,7 @@ from O
 hauptbahnhof B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -539,6 +586,7 @@ from O
 odeonsplatz B-StationStart
 ? O
 
+C DepartureTime
 show O
 me O
 the O
@@ -548,6 +596,7 @@ from O
 garching B-StationStart
 ! O
 
+C DepartureTime
 when O
 does O
 the O
@@ -558,6 +607,7 @@ from O
 hauptbahnhof B-StationStart
 ? O
 
+C DepartureTime
 when O
 will O
 the O
@@ -571,6 +621,7 @@ garching B-StationStart
 forschungszentrum I-StationStart
 ? O
 
+C DepartureTime
 show O
 me O
 the O
@@ -580,6 +631,7 @@ from O
 michaelibad B-StationStart
 . O
 
+C DepartureTime
 when O
 does O
 the O
@@ -591,6 +643,7 @@ sendlinger B-StationStart
 tor I-StationStart
 ? O
 
+C DepartureTime
 hey O
 bot O
 , O
@@ -604,6 +657,7 @@ at O
 garching B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -614,6 +668,7 @@ at O
 garching B-StationStart
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -622,6 +677,7 @@ from O
 quiddestraße B-StationStart
 ? O
 
+C DepartureTime
 when O
 can O
 i O
@@ -632,6 +688,7 @@ at O
 mariahilfplatz B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -642,6 +699,7 @@ at O
 romanplatz B-StationStart
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -651,12 +709,14 @@ röblingweg B-StationStart
 starts O
 ? O
 
+C DepartureTime
 next B-Criterion
 bus B-Vehicle
 from O
 quiddestraße B-StationStart
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -667,6 +727,7 @@ from O
 garching B-StationStart
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -675,6 +736,7 @@ leaving O
 in O
 garching B-StationStart
 
+C DepartureTime
 when O
 is O
 the O
@@ -684,6 +746,7 @@ in O
 garching B-StationStart
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -694,6 +757,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C DepartureTime
 when O
 is O
 adrians O
@@ -705,6 +769,7 @@ garching B-StationStart
 forschungszentrum I-StationStart
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -715,6 +780,7 @@ to O
 hauptbahnhof B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -725,6 +791,7 @@ to O
 boltzmannstraße B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -736,6 +803,7 @@ garching B-StationDest
 forschungszentrum I-StationDest
 ? O
 
+C FindConnection
 can O
 you O
 give O
@@ -748,6 +816,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -756,12 +825,14 @@ train B-Vehicle
 from O
 garching B-StationStart
 
+C DepartureTime
 when O
 comes O
 the O
 next B-Criterion
 train B-Vehicle
 
+C DepartureTime
 when O
 is O
 the O
@@ -770,6 +841,7 @@ train B-Vehicle
 in O
 nordfriedhof B-StationStart
 
+C DepartureTime
 when O
 does O
 the O
@@ -780,6 +852,7 @@ at O
 garching B-StationStart
 forschungszentrum I-StationStart
 
+C FindConnection
 when O
 is O
 the O
@@ -791,6 +864,7 @@ to O
 garching B-StationDest
 forschungszentrum I-StationDest
 
+C FindConnection
 i O
 want O
 to O
@@ -801,6 +875,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -810,6 +885,7 @@ sendlinger B-StationDest
 tor I-StationDest
 ? O
 
+C FindConnection
 how O
 do O
 i O
@@ -819,6 +895,7 @@ untere B-StationDest
 straussäcker I-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -829,6 +906,7 @@ to O
 garching B-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -840,6 +918,7 @@ sendlinger B-StationDest
 tor I-StationDest
 ? O
 
+C FindConnection
 how O
 can O
 i O
@@ -849,6 +928,7 @@ garchingto B-StationStart
 garching B-StationDest
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -857,6 +937,7 @@ train B-Vehicle
 from O
 garching B-StationStart
 
+C FindConnection
 how O
 do O
 i O
@@ -866,6 +947,7 @@ marienplatz B-StationStart
 zu O
 garching B-StationDest
 
+C FindConnection
 how O
 can O
 i O
@@ -876,6 +958,7 @@ from O
 garching B-StationStart
 ? O
 
+C FindConnection
 when O
 is O
 the O
@@ -884,6 +967,7 @@ train B-Vehicle
 to O
 garching B-StationDest
 
+C FindConnection
 how O
 can O
 i O
@@ -894,6 +978,7 @@ to O
 milbertshofen B-StationDest
 ? O
 
+C DepartureTime
 when O
 does O
 the O
@@ -905,6 +990,7 @@ garching B-StationStart
 forschungszentrum I-StationStart
 ? O
 
+C FindConnection
 connection O
 from O
 untere B-StationStart
@@ -913,6 +999,7 @@ straßäcker I-StationStart
 to O
 kieferngarten B-StationDest
 
+C FindConnection
 how O
 to O
 get O
@@ -923,6 +1010,7 @@ strassäcker I-StationStart
 to O
 frötmaning B-StationDest
 
+C FindConnection
 how O
 to O
 get O
@@ -933,6 +1021,7 @@ strassaecker I-StationStart
 to O
 frötmaning B-StationDest
 
+C FindConnection
 when O
 is O
 the O
@@ -945,6 +1034,7 @@ straßaecker I-StationStart
 to O
 kieferngarten B-StationDest
 
+C FindConnection
 when O
 is O
 the O
@@ -959,11 +1049,13 @@ garching I-StationStart
 to O
 kieferngarten B-StationDest
 
+C FindConnection
 from O
 garching B-StationStart
 to O
 perlach B-StationDest
 
+C FindConnection
 how O
 to O
 get O
@@ -973,6 +1065,7 @@ to O
 perlach B-StationDest
 ? O
 
+C FindConnection
 how O
 to O
 get O
@@ -981,6 +1074,7 @@ bonnerplatz B-StationStart
 to O
 freimann B-StationDest
 
+C DepartureTime
 when O
 is O
 the O
@@ -990,6 +1084,7 @@ in O
 nordfriedhof B-StationStart
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -1000,6 +1095,7 @@ münchner B-StationStart
 freiheit I-StationStart
 ? O
 
+C FindConnection
 connection O
 from O
 hauptbahnhof B-StationStart
@@ -1007,6 +1103,7 @@ to O
 odeonsplatz B-StationDest
 ? O
 
+C FindConnection
 how O
 do O
 i O
@@ -1018,6 +1115,7 @@ to O
 hauptbahnhof B-StationDest
 ? O
 
+C DepartureTime
 when O
 is O
 the O
@@ -1027,6 +1125,7 @@ in O
 garching B-StationStart
 forschungszentrum I-StationStart
 
+C FindConnection
 how O
 can O
 i O
@@ -1036,6 +1135,7 @@ garching B-StationStart
 to O
 marienplatz B-StationDest
 
+C FindConnection
 from O
 garching B-StationStart
 to O

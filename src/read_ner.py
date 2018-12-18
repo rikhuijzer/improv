@@ -7,8 +7,8 @@ from itertools import chain
 @lru_cache(maxsize=1)
 def get_ner_lines(filename: Path) -> List[List[str]]:
     """Returns list of list of two strings. For example inside the list:
-        ['O O O O B-StationDest O O']
-        ['i want to go to marienplatz when is']
+        ['C O O O O B-StationDest O O']
+        ['FindConnection i want to go to marienplatz when is']
         Tokens are separated by spaces.
     """
     with open(str(filename)) as f:

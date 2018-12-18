@@ -8,8 +8,8 @@ data_dir = get_project_root() / 'data' / 'chatbot'
 def test_get_ner_lines():
     lines = get_ner_lines(data_dir / 'test.txt')
     assert len(lines) == 105
-    assert lines[0][0] == 'O O O O B-StationDest'
-    assert lines[0][1] == 'i want to go marienplatz'
+    assert lines[0][0] == 'C O O O O B-StationDest'
+    assert lines[0][1] == 'FindConnection i want to go marienplatz'
 
 
 def test_get_unique_labels():
@@ -23,7 +23,9 @@ def test_get_unique_labels():
     assert '[CLS]' in labels
     assert '[SEP]' in labels
     assert 'X' in labels
-    assert len(labels) == 16
+    assert len(labels) > 16  # changed by the intent examples, two intents occur
+
+    assert 'DepartureTime' in labels  # this is a sentence intent example
 
 
 def test_get_interesting_labels_indexes():

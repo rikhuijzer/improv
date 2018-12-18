@@ -149,7 +149,7 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
     ntokens = []
     segment_ids = []
     label_ids = []
-    ntokens.append("[CLS]")
+    # ntokens.append("[CLS]")  # useless, should not be appended i think
     segment_ids.append(0)
     # append("O") or append("[CLS]") not sure!
     label_ids.append(label_map["[CLS]"])
@@ -173,10 +173,11 @@ def convert_single_example(ex_index, example, label_list, max_seq_length, tokeni
         ntokens.append("**NULL**")
         # label_mask.append(0)
     # print(len(input_ids))
-    assert len(input_ids) == max_seq_length
-    assert len(input_mask) == max_seq_length
-    assert len(segment_ids) == max_seq_length
-    assert len(label_ids) == max_seq_length
+
+    # assert len(input_ids) == max_seq_length
+    # assert len(input_mask) == max_seq_length
+    # assert len(segment_ids) == max_seq_length
+    # assert len(label_ids) == max_seq_length
     # assert len(label_mask) == max_seq_length
 
     if ex_index < 5:
@@ -275,18 +276,18 @@ def create_model(bert_config, is_training, input_ids, input_mask,
 
     output_weight = tf.get_variable(
         "output_weights", [num_labels, hidden_size],
-        initializer=tf.truncated_normal_initializer(stddev=0.02)
-    )
+        initializer=tf.truncated_normal_initializer(stddev=0.02))
+
     output_bias = tf.get_variable(
-        "output_bias", [num_labels], initializer=tf.zeros_initializer()
-    )
+        "output_bias", [num_labels], initializer=tf.zeros_initializer())
+
     with tf.variable_scope("loss"):
         if is_training:
             output_layer = tf.nn.dropout(output_layer, keep_prob=0.9)
         output_layer = tf.reshape(output_layer, [-1, hidden_size])
         logits = tf.matmul(output_layer, output_weight, transpose_b=True)
         logits = tf.nn.bias_add(logits, output_bias)
-        logits = tf.reshape(logits, [-1,  # -1 means infer from total number of elements inside tensor should not change
+        logits = tf.reshape(logits, [-1,  # -1 means infer from total number of elements
                                      h_params.max_seq_length,
                                      len(get_unique_labels(h_params.data_dir)) + 1])
         # mask = tf.cast(input_mask,tf.float32)
