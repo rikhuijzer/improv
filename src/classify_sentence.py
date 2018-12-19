@@ -1,8 +1,8 @@
 import time
 from pathlib import Path
 
-from improv import run_classifier as rc
-from improv.utils import get_project_root
+from src import run_classifier as rc
+from src.utils import get_project_root
 
 
 #

@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from improv.config import get_debug_hparams
-from improv.data_reader import get_filename
-from improv.my_classifier import (
+from src.config import get_debug_hparams
+from src.data_reader import get_filename
+from src.my_classifier import (
     SetType, get_examples, get_model_fn_and_estimator, train, get_intents, get_unique_intents, train_evaluate
 )
-from improv.my_types import Corpus
-from improv.utils import clean_folder, get_project_root, reduce_output
+from src.my_types import Corpus
+from src.utils import clean_folder, get_project_root, reduce_output
 
 
 def get_debug_filename() -> Path:

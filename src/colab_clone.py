@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from improv.config import get_debug_hparams
-from improv.my_classifier import (
+from src.config import get_debug_hparams
+from src.my_classifier import (
     get_model_fn_and_estimator, evaluate, train, predict
 )
 

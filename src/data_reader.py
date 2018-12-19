@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Tuple, Iterable, List
 from rasa_nlu.training_data import Message
 import re
-from improv.my_types import Corpus
+from src.my_types import Corpus
 
 
 def read_tsv(filename: Path, quotechar=None) -> Iterable[List[str]]:
@@ -40,7 +40,7 @@ def get_filtered_messages(filename: Path, training: bool) -> Tuple[Message]:
 
 def get_filename(corpus: Corpus) -> Path:
     """Returns filename for some Corpus. This avoids re-defining corpus location all over the place."""
-    from improv.utils import get_project_root
+    from src.utils import get_project_root
 
     task = corpus.name.lower()
     return get_project_root() / 'data' / task / (task + '.tsv')

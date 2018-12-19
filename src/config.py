@@ -36,7 +36,7 @@ HParams = NamedTuple('Params', [
 
 def get_debug_hparams() -> HParams:
     """Parameters for lightweight BERT execution for debug purposes."""
-    from improv.utils import get_project_root
+    from src.utils import get_project_root
 
     task_name = 'chatbot'
     bert_model = 'uncased_L-12_H-768_A-12'

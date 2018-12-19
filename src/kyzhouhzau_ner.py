@@ -16,15 +16,15 @@ from pathlib import Path
 
 import tensorflow as tf
 
-import improv.kyzhouhzau_tf_metrics as tf_metrics
-import improv.modeling as modeling
-import improv.optimization as optimization
-import improv.tokenization as tokenization
-from improv.config import HParams
-from improv.read_ner import get_ner_lines, get_unique_labels, get_interesting_labels_indexes
+import src.kyzhouhzau_tf_metrics as tf_metrics
+import src.modeling as modeling
+import src.optimization as optimization
+import src.tokenization as tokenization
+from src.config import HParams
+from src.read_ner import get_ner_lines, get_unique_labels, get_interesting_labels_indexes
 from typing import Iterable, List
 from numpy import ndarray
-from improv.my_types import NERData
+from src.my_types import NERData
 
 
 class InputExample(object):
@@ -74,7 +74,7 @@ class DataProcessor(object):
     @classmethod
     def _read_data(cls, input_file):
         """Reads a BIO data."""
-        from improv.read_ner import get_ner_lines
+        from src.read_ner import get_ner_lines
         return get_ner_lines(Path(input_file))
 
 
@@ -99,7 +99,7 @@ class NerProcessor(DataProcessor):
         )
 
     def get_labels(self):
-        from improv.read_ner import get_unique_labels
+        from src.read_ner import get_unique_labels
         return get_unique_labels(self.h_params.data_dir)
         # return ["B-MISC", "I-MISC", "O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X", "[CLS]", "[SEP]"]
 

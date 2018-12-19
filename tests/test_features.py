@@ -1,6 +1,6 @@
-from improv.config import get_debug_hparams
-from improv.features import convert_examples_to_features
-from improv.my_classifier import get_examples, SetType, get_tokenizer, get_data_filename, get_unique_intents
+from src.config import get_debug_hparams
+from src.features import convert_examples_to_features
+from src.my_classifier import get_examples, SetType, get_tokenizer, get_data_filename, get_unique_intents
 
 
 def test_convert_examples_to_features():

@@ -1,5 +1,5 @@
-from improv.data_reader import convert_annotated_text, convert_line_message, get_filtered_messages
-from improv.utils import get_project_root
+from src.data_reader import convert_annotated_text, convert_line_message, get_filtered_messages
+from src.utils import get_project_root
 
 
 def test_convert_annotated_text():

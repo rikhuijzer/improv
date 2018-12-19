@@ -9,16 +9,16 @@ from typing import Iterable, List
 import numpy as np
 import tensorflow as tf
 
-from improv.config import HParams
-from improv.data_reader import get_messages, get_filtered_messages
-from improv.modeling import BertConfig
-from improv.run_classifier import InputExample
-from improv.run_classifier import (
+from src.config import HParams
+from src.data_reader import get_messages, get_filtered_messages
+from src.modeling import BertConfig
+from src.run_classifier import InputExample
+from src.run_classifier import (
     input_fn_builder, convert_examples_to_features, model_fn_builder,
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
-from improv.tokenization import FullTokenizer, convert_to_unicode
-from improv.utils import convert_result_pred, get_rounded_f1
+from src.tokenization import FullTokenizer, convert_to_unicode
+from src.utils import convert_result_pred, get_rounded_f1
 
 
 @lru_cache(maxsize=1)
@@ -66,7 +66,7 @@ def get_unique_intents(filename: Path) -> List[str]:
 
 @lru_cache(maxsize=1)
 def get_model_fn_and_estimator(hparams: HParams):
-    from improv.my_estimator import get_unique_intents
+    from src.my_estimator import get_unique_intents
 
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')  # possible duplicate
     num_train_steps = hparams.num_train_steps
