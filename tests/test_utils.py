@@ -1,4 +1,4 @@
-from src.utils import get_project_root, convert_result_pred, get_y_true, find_tf_events, clean_folder
+from improv.utils import get_project_root, convert_result_pred, get_y_true, find_tf_events, clean_folder
 import numpy as np
 import shutil
 import tensorflow as tf

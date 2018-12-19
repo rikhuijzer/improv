@@ -24,7 +24,7 @@ import os
 
 import tensorflow as tf
 
-from src import tokenization, optimization, modeling
+from improv import tokenization, optimization, modeling
 
 
 class InputExample(object):

@@ -5,7 +5,7 @@ from typing import List, Iterable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from src.data_reader import get_filtered_messages
+from improv.data_reader import get_filtered_messages
 import tensorflow as tf
 import os
 import warnings

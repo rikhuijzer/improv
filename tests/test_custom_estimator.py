@@ -8,9 +8,9 @@ import pandas as pd
 import tensorflow as tf
 from six.moves import StringIO
 
-import src.iris_estimator.iris_data as iris_data
-from src.iris_estimator.custom_estimator import main
-from src.utils import get_project_root, clean_folder, reduce_output
+import improv.iris_estimator.iris_data as iris_data
+from improv.iris_estimator.custom_estimator import main
+from improv.utils import get_project_root, clean_folder, reduce_output
 
 
 FOUR_LINES = '\n'.join([

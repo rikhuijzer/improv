@@ -1,5 +1,5 @@
-from src.utils import get_project_root
-from src.read_ner import get_ner_lines, get_unique_labels, get_interesting_labels_indexes
+from improv.utils import get_project_root
+from improv.read_ner import get_ner_lines, get_unique_labels, get_interesting_labels_indexes
 
 
 data_dir = get_project_root() / 'data' / 'chatbot'
@@ -34,5 +34,5 @@ def test_get_interesting_labels_indexes():
     interesting_labels = list(map(lambda index: unique_labels[index], indexes))
     assert len(interesting_labels) == 13
 
-    from src.read_ner import bert_tokens
+    from improv.read_ner import bert_tokens
     assert not any(map(lambda bert_token: bert_token in interesting_labels, bert_tokens))

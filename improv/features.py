@@ -1,6 +1,6 @@
 import tensorflow as tf
-from src.run_classifier import _truncate_seq_pair, InputFeatures
-import src.tokenization as tokenization
+from improv.run_classifier import _truncate_seq_pair, InputFeatures
+import improv.tokenization as tokenization
 
 
 def convert_single_example(ex_index, example, label_list, max_seq_length, tokenizer):
