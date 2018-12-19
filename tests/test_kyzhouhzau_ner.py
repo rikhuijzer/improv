@@ -1,5 +1,5 @@
-from src.config import get_debug_hparams
-from src.kyzhouhzau_ner import run, evaluate_pred_result
+from improv.config import get_debug_hparams
+from improv.kyzhouhzau_ner import run, evaluate_pred_result
 
 
 def test_eval():

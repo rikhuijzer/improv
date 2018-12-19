@@ -5,12 +5,12 @@ from typing import Set, List
 
 import tensorflow as tf
 
-from src.config import HParams
-from src.data_reader import get_filtered_messages
-from src.modeling import BertConfig
-from src.my_classifier import get_tokenizer
-from src.run_classifier import input_fn_builder, convert_examples_to_features, model_fn_builder, InputExample
-from src.tokenization import convert_to_unicode
+from improv.config import HParams
+from improv.data_reader import get_filtered_messages
+from improv.modeling import BertConfig
+from improv.my_classifier import get_tokenizer
+from improv.run_classifier import input_fn_builder, convert_examples_to_features, model_fn_builder, InputExample
+from improv.tokenization import convert_to_unicode
 """Based on https://medium.com/tensorflow/how-to-write-a-custom-estimator-model-for-the-cloud-tpu-7d8bd9068c26."""
 
 
@@ -180,12 +180,12 @@ def train_and_evaluate(hparams: HParams):
 
 
 def predict(hparams: HParams) -> List[str]:
-    from src.my_classifier import get_model_fn_and_estimator, file_based_input_fn_builder
-    from src.run_classifier import file_based_convert_examples_to_features
+    from improv.my_classifier import get_model_fn_and_estimator, file_based_input_fn_builder
+    from improv.run_classifier import file_based_convert_examples_to_features
     import os
     from typing import Iterable
     import numpy as np
-    from src.utils import convert_result_pred, get_rounded_f1
+    from improv.utils import convert_result_pred, get_rounded_f1
 
     data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
     params = hparams._replace(use_tpu=False)  # BERT code warns against using TPU for predictions.
@@ -216,7 +216,7 @@ def predict(hparams: HParams) -> List[str]:
 
 
 if __name__ == '__main__':
-    from src.config import get_debug_hparams
+    from improv.config import get_debug_hparams
 
     # train_and_evaluate(get_debug_hparams())
 
