@@ -579,7 +579,7 @@ def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
     for ner_data, prediction in zip(ner_datas, result):
         n = len(ner_data.text)
 
-        pred = list(id2label[pred_id] if pred_id != 0 else '<0>' for i, pred_id in enumerate(prediction) if i <= n)
+        pred = list(id2label[pred_id] if pred_id != 0 else '<0>' for i, pred_id in enumerate(prediction) if i < n)
         updated_ner_datas.append(NERData(ner_data.text, ner_data.true, pred))
 
     for ner_data in updated_ner_datas:
