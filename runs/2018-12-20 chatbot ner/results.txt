@@ -1,0 +1,523 @@
+text: ['i', 'want', 'to', 'go', 'marienplatz']
+true: ['O', 'O', 'O', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'B-StationStart']
+
+
+text: ['when', 'is', 'the', 'next', 'train', 'in', 'muncher', 'freiheit', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['when', 'does', 'the', 'next', 'u', '-', 'bahn', 'leaves', 'from', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['from', 'olympia', 'einkaufszentrum', 'to', 'hauptbahnhof']
+true: ['O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationStart', 'I-StationStart', 'X', 'X']
+
+
+text: ['when', 'is', 'the', 'next', 'train', 'from', 'winterstraße', '12', 'to', 'kieferngarten']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['when', 'is', 'the', 'next', 'rocket', 'from', 'winterstraße', '12', 'to', 'kieferngarte']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['can', 'you', 'find', 'a', 'connection', 'from', 'garching', 'to', 'hauptbahnhof', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'O', 'B-StationDest', 'X', 'X', 'O']
+
+
+text: ['how', 'to', 'get', 'from', 'untere', 'strassäcker', '21', 'to', 'fröttmaning']
+true: ['O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart', 'I-StationStart']
+
+
+text: ['how', 'i', 'can', 'get', 'from', 'marienplatz', 'to', 'garching']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['connection', 'from', 'boltzmannstraße', 'to', 'kieferngarten']
+true: ['O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'B-StationDest', 'X', 'X']
+
+
+text: ['how', 'to', 'get', 'from', 'bonner', 'platz', 'to', 'freimann', '?']
+true: ['O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'B-StationStart', 'X', 'I-StationStart', 'X', 'O']
+
+
+text: ['when', 'is', 'the', 'next', 's', '-', 'bahn', 'leaving', 'at', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['how', 'do', 'i', 'get', 'from', 'oez', 'to', 'hbf', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'O', 'B-StationDest']
+
+
+text: ['how', 'to', 'get', 'from', 'winterstrasse', '12', 'to', 'fröttmaning']
+true: ['O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['how', 'do', 'i', 'get', 'from', 'garching', 'forschungszentrum', 'to', 'pasing']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['theresienstraße', 'to', 'assling']
+true: ['B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'theresienstraße', 'to', 'munich', 'east', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'I-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X', 'O']
+
+
+text: ['when', 'does', 'the', 'next', 'bus', 'starts', 'from', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['from', 'quiddestraße', 'to', 'garching', '?']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'B-StationDest', 'X', 'X', 'X']
+
+
+text: ['can', 'you', 'find', 'a', 'connection', 'from', 'kurt', '-', 'eisner', '-', 'straße', 'to', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'I-StationStart', 'I-StationStart', 'I-StationStart', 'O', 'B-StationDest', 'I-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'I-StationStart', 'X', 'X', 'I-StationStart', 'I-StationStart', 'X', 'O']
+
+
+text: ['can', 'you', 'find', 'a', 'connection', 'from', 'quiddestraße', 'to', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'I-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X', 'O']
+
+
+text: ['when', 'does', 'the', 'next', 'train', 'leaves', 'at', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['from', 'hauptbahnhof', 'to', 'garching', '?']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'B-StationDest', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'to', 'glockenbachviertel', 'from', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationDest', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationDest', 'X', 'X', 'X', 'X']
+
+
+text: ['how', 'i', 'can', 'get', 'from', 'garching', 'to', 'nordfriedhof']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'to', 'glockenbachviertel', 'from', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationDest', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationDest', 'X', 'X', 'X', 'X']
+
+
+text: ['when', 'is', 'the', 'next', 'train', 'leaving', 'in', 'garching', 'forschungszentrum']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'moosach', 'to', 'quiddestraße', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'moosach', 'to', 'poccistraße', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'kurt', '-', 'eisner', '-', 'straße', 'to', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'I-StationStart', 'I-StationStart', 'I-StationStart', 'O', 'B-StationDest', 'I-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'I-StationStart', 'X', 'X', 'I-StationStart', 'I-StationStart', 'X', 'O']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'moosach', 'to', 'quiddestraße', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'moosach', 'to', 'odeonsplatz', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['when', 'does', 'the', 'next', 'bus', 'starts', 'at', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['what', "'", 's', 'the', 'shortest', 'way', 'from', 'quiddestraße', 'to', 'odeonsplatz', '?']
+true: ['O', 'O', 'O', 'O', 'B-Criterion', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'B-Criterion', 'O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['when', 'is', 'the', 'next', 'bus', 'from', 'ostbahnhof']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+
+
+text: ['how', 'i', 'can', 'get', 'from', 'garching', 'to', 'neuperlach', 'sued']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'I-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['when', 'is', 'the', 'next', 'train', 'in', 'munchner', 'freiheit', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['how', 'i', 'can', 'get', 'from', 'marienplatz', 'to', 'garching', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'do', 'i', 'get', 'from', 'poccistraße', 'to', 'laim']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['i', 'want', 'to', 'go', 'garching', 'from', 'marienplatz']
+true: ['O', 'O', 'O', 'O', 'B-StationDest', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'O', 'B-StationDest', 'X', 'X']
+
+
+text: ['how', 'i', 'can', 'get', 'from', 'marienplatz', 'to', 'garching', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'hauptbahnhof', 'to', 'odeonsplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['prinzregentenplatz', 'to', 'rotkreuzplatz']
+true: ['B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'X', 'X']
+
+
+text: ['i', 'want', 'to', 'go', 'to', 'garching', 'from', 'marienplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationDest', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationDest', 'X', 'X']
+
+
+text: ['next', 'train', 'from', 'garching']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+
+
+text: ['from', 'prinzregentenplatz', 'to', 'rotkreuzplatz']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'I-StationStart', 'X', 'X']
+
+
+text: ['when', 'is', 'the', 'next', 'subway', 'from', 'garching', 'forschungszentrum']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['from', 'garching', 'to', 'klinikum']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationStart', 'X', 'X']
+
+
+text: ['from', 'garching', 'foschungszentrum', 'to', 'odeonsplatz']
+true: ['O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationStart', 'X', 'X', 'I-StationDest']
+
+
+text: ['next', 'bus', 'in', 'garching']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+
+
+text: ['when', 'does', 'the', 'train', 'leaving', 'in', 'garching', 'forschungszentrum']
+true: ['O', 'O', 'O', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['O', 'O', 'O', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['next', 'subway', 'from', 'garching', 'forschungszentrum']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['tell', 'me', 'the', 'next', 'bus', 'from', 'garching']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+
+
+text: ['next', 'bus', 'from', 'garching', ',', 'please', '.']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'O', 'O', 'O']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['next', 'bus', 'from', 'garching']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+
+
+text: ['next', 'bus', 'from', 'central', 'station']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['from', 'garching', 'to', 'marienplatz']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationStart', 'X', 'X']
+
+
+text: ['next', 'bus', 'from', 'garching', '.']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'O']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['connection', 'from', 'garching', 'to', 'hauptbahnhof', '?']
+true: ['O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'B-StationDest', 'X', 'X', 'O']
+
+
+text: ['when', 'does', 'the', 'next', 'bus', 'departs', 'from', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'X', 'O', 'B-StationStart']
+
+
+text: ['find', 'connection', 'from', 'hauptbahnhof', 'to', 'odeonsplatz']
+true: ['O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['when', 'does', 'the', 'next', 'u', '-', 'bahn', 'departs', 'at', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'X', 'O', 'B-StationStart', 'X']
+
+
+text: ['when', 'does', 'the', 'next', 'u', '-', 'bahn', 'departs', 'at', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'X', 'O', 'B-StationStart']
+
+
+text: ['when', 'does', 'the', 'next', 'subway', 'departs', 'at', 'garching']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'X', 'O']
+
+
+text: ['when', 'is', 'the', 'next', 'train', 'in', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['how', 'to', 'get', 'from', 'münchner', 'freiheit', 'to', 'garching', '?']
+true: ['O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'X', 'X', 'X']
+
+
+text: ['implerstraße', 'to', 'ostbahnhof']
+true: ['B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'hauptbahnhof', 'to', 'odeonsplatz', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'go', 'from', 'garching', 'forschungszentrum', 'to', 'prinzregentenplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'mangfallplatz', 'to', 'garching']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'to', 'hohenlindenerstraße']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationDest']
+
+
+text: ['harthaus', 'to', 'hackerbrücke']
+true: ['B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'feldmoching', 'to', 'garching', 'forschungszentrum', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'I-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X', 'O']
+
+
+text: ['from', 'marienplatz', 'to', 'petershausen']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationStart', 'X', 'X']
+
+
+text: ['when', 'is', 'the', 'train', 'from', 'garching', 'to', 'marienplatz']
+true: ['O', 'O', 'O', 'B-Vehicle', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['neufahrn', 'to', 'garching']
+true: ['B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'mangfallplatz', 'to', 'garching']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'to', 'hohenlindenerstr']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationDest']
+
+
+text: ['when', 'is', 'the', 'next', 'bus', 'from', 'garching', 'forschungzentrum']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['how', 'do', 'i', 'get', 'from', 'spitzingplatz', 'to', 'poccistraße', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'garching', 'forschungszentrum', 'to', 'marienplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'klinkum', 'to', 'marienplatz', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'O']
+
+
+text: ['how', 'to', 'get', 'from', 'alte', 'heide', 'to', 'marienplatz']
+true: ['O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'B-StationStart', 'X', 'I-StationStart', 'X']
+
+
+text: ['next', 'train', 'from', 'muenchen', 'freicheit']
+true: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['depart', 'in', 'garching', ',', 'i', 'assume']
+true: ['O', 'O', 'B-StationStart', 'O', 'O', 'O']
+pred: ['O', 'O', 'B-StationDest', 'X', 'X', 'O']
+
+
+text: ['when', 'does', 'the', 'next', 'u', '-', 'bahn', 'depart', 'at', 'garching', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'I-Vehicle', 'I-Vehicle', 'O', 'O', 'B-StationStart', 'X']
+
+
+text: ['the', 'next', 'bus', 'from', 'garching', 'forschungzentrum']
+true: ['O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['B-Criterion', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X']
+
+
+text: ['when', 'is', 'the', 'next', 'train', 'in', 'alte', 'heide', '?']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart', 'O']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'X', 'I-StationStart']
+
+
+text: ['or', 'depart', 'from', 'garching']
+true: ['O', 'O', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'B-StationDest']
+
+
+text: ['hello', 'munich', 'city', 'bot', '!', 'how', 'do', 'i', 'get', 'from', 'münchner', 'freiheit', 'to', 'scheidplatz', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'B-StationStart', 'I-StationStart', 'I-StationStart', 'O', 'O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'garching', 'forschungszentrum', 'to', 'prinzregentenplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'neufahrn', 'to', 'garching']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['take', 'me', 'to', 'the', 'airport']
+true: ['O', 'O', 'O', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'B-StationDest', 'B-Vehicle']
+
+
+text: ['when', 'does', 'the', 'next', 'u6', 'leave', 'from', 'garching', 'forschungszentrum']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Line', 'O', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['O', 'O', 'O', 'O', 'B-Line', 'X', 'O', 'O', 'B-StationStart']
+
+
+text: ['how', 'i', 'can', 'get', 'from', 'munchner', 'freiheit', 'to', 'nordfriedhof', '?']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest', 'O']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'I-StationStart', 'X']
+
+
+text: ['from', 'harthaus', 'to', 'hackerbrücke']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationDest', 'X', 'O']
+
+
+text: ['when', 'is', 'the', 'train', 'from', 'garching']
+true: ['O', 'O', 'O', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'B-Vehicle', 'O', 'B-StationStart']
+
+
+text: ['what', 'is', 'the', 'next', 'train', 'from', 'münchner', 'freiheit']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart', 'I-StationStart']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'theresienstrasse', 'to', 'garching', 'forschungszentrum']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest', 'I-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'münchner', 'freiheit', 'to', 'odeonsplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'I-StationStart', 'X', 'X']
+
+
+text: ['from', 'garching', 'to', 'hauptbahnhof']
+true: ['O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'B-StationDest', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'garching', 'to', 'odeonsplatz']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['start', ':', 'neufahrn', 'end', ':', 'garching']
+true: ['O', 'O', 'B-StationStart', 'O', 'O', 'B-StationDest']
+pred: ['O', 'O', 'B-StationStart', 'X', 'X', 'X']
+
+
+text: ['how', 'can', 'i', 'get', 'from', 'studentenstadt', 'to', 'garching']
+true: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'O', 'B-StationDest']
+pred: ['O', 'O', 'O', 'O', 'O', 'B-StationStart', 'X', 'X']
+
+
+text: ['when', 'is', 'the', 'next', 'bus', 'from', 'garching']
+true: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']
+pred: ['O', 'O', 'O', 'B-Criterion', 'B-Vehicle', 'O', 'B-StationStart']

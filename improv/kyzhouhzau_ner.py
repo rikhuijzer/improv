@@ -25,6 +25,7 @@ from improv.read_ner import get_ner_lines, get_unique_labels, get_interesting_la
 from typing import Iterable, List
 from numpy import ndarray
 from improv.my_types import NERData
+from improv.evaluate import print_scores
 
 
 class InputExample(object):
@@ -585,13 +586,14 @@ def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
     for ner_data in updated_ner_datas:
         print(convert_ner_str(ner_data))
 
-    with open(os.path.join(h_params.local_dir, 'ner_data.txt'), 'w') as w:
+    with open(os.path.join(h_params.local_dir, 'results.txt'), 'w') as w:
         w.writelines(map(lambda data: convert_ner_str(data), updated_ner_datas))
 
 
 def main(h_params: HParams):
     result = run(h_params)
     evaluate_pred_result(h_params, result)
+    print_scores(Path(h_params.local_dir) / 'results.txt')
 
 
 if __name__ == "__main__":
