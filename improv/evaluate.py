@@ -75,5 +75,5 @@ def print_scores(filename: Path):
 
 
 if __name__ == '__main__':
-    fn = get_project_root() / 'runs' / '2018-12-20 chatbot' / 'results.txt'
+    fn = get_project_root() / 'runs' / '2018-12-20 chatbot' / '2018-12-20 chatbot joint.txt'
     print_scores(fn)
