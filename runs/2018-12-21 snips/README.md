@@ -4,7 +4,7 @@ num_train_steps = 1500
 train_batch_size = 32
 n_train_examples = 2099
 n_epochs = 1500 * 32 / 2099 = 22.9
-eval_size = ...
+n_eval_examples = 700
 ```
 
 ## joint
