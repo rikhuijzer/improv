@@ -187,7 +187,7 @@ def predict(hparams: HParams) -> List[str]:
     import numpy as np
     from improv.utils import convert_result_pred, get_rounded_f1
 
-    data_filename = hparams.data_dir / (hparams.task_name + '.tsv')
+    data_filename = hparams.data_dir.parent / (hparams.task_name + '.tsv')
     params = hparams._replace(use_tpu=False)  # BERT code warns against using TPU for predictions.
     model_fn, estimator = get_model_fn_and_estimator(params)
 
@@ -211,7 +211,7 @@ def predict(hparams: HParams) -> List[str]:
     result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
     label_list = get_intents(data_filename)  # used for label_list[max_class] this might be wrong
     y_pred = convert_result_pred(result, label_list)
-    print('f1 score: {}'.format(get_rounded_f1(params.data_dir / 'askubuntu.tsv', y_pred, average='micro')))
+    print('f1 score: {}'.format(get_rounded_f1(params.data_dir.parent / 'askubuntu.tsv', y_pred, average='micro')))
     return y_pred
 
 
