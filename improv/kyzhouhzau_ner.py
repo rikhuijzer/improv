@@ -452,6 +452,7 @@ def ner_train(h_params: HParams, estimator, processor):
 
     tf.gfile.MakeDirs(h_params.output_dir)
     label_list = processor.get_labels()
+    tokenizer = get_tokenizer(h_params)
     if h_params.do_train:
         train_file = os.path.join(h_params.output_dir, "train.tf_record")
         filed_based_convert_examples_to_features(
