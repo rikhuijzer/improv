@@ -26,7 +26,8 @@ from typing import Iterable, List
 from numpy import ndarray
 from improv.my_types import NERData
 from improv.evaluate import print_scores
-from improv.my_classifier import get_tokenizer
+from improv.my_classifier import get_tokenizer, get_model_fn_and_estimator, train, evaluate, predict
+
 
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
@@ -556,19 +557,27 @@ def run(h_params: HParams):
     processor = processors['ner'](h_params)
 
     if h_params.task == 'intent':
-        from improv.my_classifier import get_model_fn_and_estimator
         model_fn, estimator = get_model_fn_and_estimator(h_params)
     else:
         model_fn, estimator = get_ner_model_fn_and_estimator(h_params, processor)
 
     if h_params.do_train:
-        ner_train(h_params, estimator, processor)
+        if h_params.task == 'intent':
+            train(h_params, estimator, max_steps=h_params.num_train_steps)
+        else:
+            ner_train(h_params, estimator, processor)
 
     if h_params.do_eval:
-        ner_eval(h_params, estimator, processor)
+        if h_params.task == 'intent':
+            evaluate(h_params, estimator)
+        else:
+            ner_eval(h_params, estimator, processor)
 
     if h_params.do_predict:
-        result = ner_pred(h_params, estimator, processor)
+        if h_params.task == 'intent':
+            result = ner_pred(h_params, estimator, processor)
+        else:
+            result = evaluate(h_params, estimator)
         return result
 
 
