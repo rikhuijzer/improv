@@ -17,5 +17,10 @@ entities weighted f1: 0.792
 ## intent only
 intents weighted f1: 0.991
 
+intents weighted f1: 0.991  # vanilla model
+
 ## entity only
 entities weighted f1: 0.746
+
+## rasa spacy
+intents weighted f1: 0.981

@@ -17,6 +17,11 @@ entities weighted f1: 0.826
 
 ## intent only
 intents weighted f1: 0.857
+intents weighted f1: 0.83  # using vanilla BERT
+intents weighted f1: 0.197  # second run on vanilla BERT
 
 ## entity only
 entities weighted f1: 0.81
+
+## rasa spacy
+intents weighted f1: 0.834
