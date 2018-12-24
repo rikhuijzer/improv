@@ -47,7 +47,7 @@ def get_debug_hparams() -> HParams:
     return HParams(
         data_dir=get_project_root() / 'data' / task_name,
         bert_config_file=bert_pretrained_dir / 'bert_config.json',
-        task='intent',
+        task='ner_intent',
         task_name=task_name,
         vocab_file=bert_pretrained_dir / 'vocab.txt',
         output_dir=str(get_project_root() / 'tmp' / task_name / output_dir_name),

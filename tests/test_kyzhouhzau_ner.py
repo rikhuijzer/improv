@@ -1,5 +1,5 @@
 from improv.config import get_debug_hparams
-from improv.kyzhouhzau_ner import run, evaluate_pred_result
+from improv.kyzhouhzau_ner import run, evaluate_ner_pred_result
 
 
 def test_eval():
@@ -18,4 +18,4 @@ def test_evaluate_result():
     """Evaluate prediction result."""
     h_params = get_debug_hparams()._replace(do_train=False, do_eval=False, do_predict=True)
     result = run(h_params)
-    evaluate_pred_result(h_params, result)
+    evaluate_ner_pred_result(h_params, result)

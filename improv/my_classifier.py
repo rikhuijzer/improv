@@ -18,7 +18,6 @@ from improv.run_classifier import (
     file_based_convert_examples_to_features, file_based_input_fn_builder
 )
 from improv.tokenization import FullTokenizer, convert_to_unicode
-from improv.utils import convert_result_pred, get_rounded_f1
 
 
 @lru_cache(maxsize=1)
@@ -175,7 +174,7 @@ def train_evaluate(hparams: HParams, estimator):
         step += max_steps
 
 
-def predict(params: HParams) -> List[str]:
+def predict(params: HParams) -> Iterable[np.ndarray]:
     hparams = copy(params)
     hparams = hparams._replace(use_tpu=False)
     model_fn, estimator = get_model_fn_and_estimator(hparams)
@@ -199,7 +198,7 @@ def predict(params: HParams) -> List[str]:
         drop_remainder=predict_drop_remainder)
 
     result: Iterable[np.ndarray] = estimator.predict(input_fn=predict_input_fn)
-    label_list = get_unique_intents(data_filename)  # used for label_list[max_class] this might be wrong
-    y_pred = convert_result_pred(result, label_list)
-    tf.logging.info('f1 score: {}'.format(get_rounded_f1(hparams.data_dir / (hparams.task_name + '.tsv'), y_pred)))
-    return y_pred
+    # label_list = get_unique_intents(data_filename)  # used for label_list[max_class] this might be wrong
+    # y_pred = convert_result_pred(result, label_list)
+    # tf.logging.info('f1 score: {}'.format(get_rounded_f1(hparams.data_dir / (hparams.task_name + '.tsv'), y_pred)))
+    return result

@@ -604,7 +604,7 @@ def convert_ner_str(ner_data: NERData) -> str:
     return out
 
 
-def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
+def evaluate_ner_pred_result(h_params: HParams, result: Iterable[ndarray]):
     """Evaluate prediction result
         result is a generator which creates one ndarray of length 128 for each prediction"""
     """Note that evaluation code by kyzhouhzau is available in Github"""
@@ -631,7 +631,7 @@ def evaluate_pred_result(h_params: HParams, result: Iterable[ndarray]):
 
 def main(h_params: HParams):
     result = run(h_params)
-    evaluate_pred_result(h_params, result)
+    evaluate_ner_pred_result(h_params, result)
     print_scores(Path(h_params.local_dir) / 'results.txt')
 
 
