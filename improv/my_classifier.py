@@ -201,4 +201,5 @@ def predict(params: HParams) -> Iterable[np.ndarray]:
     # label_list = get_unique_intents(data_filename)  # used for label_list[max_class] this might be wrong
     # y_pred = convert_result_pred(result, label_list)
     # tf.logging.info('f1 score: {}'.format(get_rounded_f1(get_data_filename(hparams), y_pred)))
+    result = tuple(result)
     return result
