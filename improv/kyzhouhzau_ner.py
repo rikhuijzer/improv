@@ -576,7 +576,7 @@ def run(h_params: HParams):
 
     if h_params.do_predict:
         if h_params.task == 'intent':
-            result = evaluate(h_params, estimator)
+            result = predict(h_params)
         else:
             result = ner_pred(h_params, estimator, processor)
         return result

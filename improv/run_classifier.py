@@ -578,7 +578,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                 predictions={"probabilities": probabilities},
                 scaffold_fn=scaffold_fn)
         return output_spec
-    
+
     return model_fn
 
 
