@@ -65,7 +65,7 @@ def load_global_step_from_checkpoint_dir(checkpoint_dir):
 def train_and_evaluate(hparams: HParams):
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    data_filename = hparams.data_dir.parent / (hparams.task_name + '.tsv')
+    data_filename = hparams.data_dir.parent.parent / (hparams.task_name + '.tsv')
     train_examples = get_examples(data_filename, SetType.train)
     num_train_steps = int(len(train_examples) / hparams.train_batch_size * hparams.num_train_epochs)
     steps_per_epoch = len(train_examples) // hparams.train_batch_size
