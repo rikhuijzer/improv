@@ -7,6 +7,8 @@ n_epochs = 16 * 250 / 99 = 40.4
 n_eval_examples = 105
 ```
 
+English model cannot interpret umlaut. Tokens with it will be [UNK]. 
+
 ## joint
 intents weighted f1: 0.981
 
