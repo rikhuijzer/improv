@@ -22,8 +22,8 @@ from improv.utils import convert_result_pred, get_rounded_f1
 
 
 @lru_cache(maxsize=1)
-def get_tokenizer(params: HParams) -> FullTokenizer:
-    return FullTokenizer(vocab_file=str(params.vocab_file), do_lower_case=params.do_lower_case)
+def get_tokenizer(h_params: HParams) -> FullTokenizer:
+    return FullTokenizer(vocab_file=str(h_params.vocab_file), do_lower_case=h_params.do_lower_case)
 
 
 def get_data_filename(hparams: HParams) -> Path:

@@ -5,6 +5,7 @@ from pathlib import Path
 HParams = NamedTuple('Params', [
     ('data_dir', Path),
     ('bert_config_file', Path),
+    ('task', str),  # either 'ner', 'ner_intent' or 'intent'
     ('task_name', str),
     ('vocab_file', Path),
     ('output_dir', str),  # using string for easy TPU location definition
@@ -38,7 +39,7 @@ def get_debug_hparams() -> HParams:
     """Parameters for lightweight BERT execution for debug purposes."""
     from improv.utils import get_project_root
 
-    task_name = 'chatbot'
+    task_name = '_chatbot'
     bert_model = 'uncased_L-12_H-768_A-12'
     bert_pretrained_dir = Path.home() / 'Downloads' / bert_model
     output_dir_name = 'debug'
@@ -46,6 +47,7 @@ def get_debug_hparams() -> HParams:
     return HParams(
         data_dir=get_project_root() / 'data' / task_name,
         bert_config_file=bert_pretrained_dir / 'bert_config.json',
+        task='intent',
         task_name=task_name,
         vocab_file=bert_pretrained_dir / 'vocab.txt',
         output_dir=str(get_project_root() / 'tmp' / task_name / output_dir_name),
@@ -80,6 +82,7 @@ def get_hparams() -> HParams:
     return HParams(
         data_dir=None,
         bert_config_file=None,
+        task=None,
         task_name=None,
         vocab_file=None,
         output_dir=None,

@@ -26,7 +26,7 @@ from typing import Iterable, List
 from numpy import ndarray
 from improv.my_types import NERData
 from improv.evaluate import print_scores
-
+from improv.my_classifier import get_tokenizer
 
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
@@ -396,26 +396,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     return model_fn
 
 
-def run(h_params: HParams):
-    tf.logging.set_verbosity(tf.logging.INFO)
-    processors = {
-        "ner": NerProcessor
-    }
-
-    bert_config = modeling.BertConfig.from_json_file(h_params.bert_config_file)
-
-    if h_params.max_seq_length > bert_config.max_position_embeddings:
-        raise ValueError(
-            "Cannot use sequence length %d because the BERT model "
-            "was only trained up to sequence length %d" %
-            (h_params.max_seq_length, bert_config.max_position_embeddings))
-
-    processor = processors['ner'](h_params)
-
-    label_list = processor.get_labels()
-
-    tokenizer = tokenization.FullTokenizer(
-        vocab_file=h_params.vocab_file, do_lower_case=h_params.do_lower_case)
+def get_ner_model_fn_and_estimator(h_params: HParams, processor):
     tpu_cluster_resolver = None
     if h_params.use_tpu and h_params.tpu_name:
         tpu_cluster_resolver = tf.contrib.cluster_resolver.TPUClusterResolver(
@@ -433,22 +414,16 @@ def run(h_params: HParams):
             num_shards=h_params.num_tpu_cores,
             per_host_input_for_training=is_per_host))
 
-    train_examples = None
-    num_train_steps = None
-    num_warmup_steps = None
+    label_list = processor.get_labels()
+    bert_config = modeling.BertConfig.from_json_file(h_params.bert_config_file)
 
-    if h_params.do_train:
-        train_examples = processor.get_train_examples(h_params.data_dir)
-        num_train_steps = h_params.num_train_steps
-        num_warmup_steps = int(num_train_steps * h_params.warmup_proportion)
-
-    model_fn = model_fn_builder(
+    model_fn = model_fn_builder(  # train and warmup used to become zero when h_params.do_train == False
         bert_config=bert_config,
         num_labels=len(label_list) + 1,
         init_checkpoint=h_params.init_checkpoint,
         learning_rate=h_params.learning_rate,
-        num_train_steps=num_train_steps,
-        num_warmup_steps=num_warmup_steps,
+        num_train_steps=h_params.num_train_steps,
+        num_warmup_steps=int(h_params.num_train_steps * h_params.warmup_proportion),
         use_tpu=h_params.use_tpu,
         use_one_hot_embeddings=h_params.use_tpu,
         h_params=h_params)
@@ -461,7 +436,21 @@ def run(h_params: HParams):
         eval_batch_size=h_params.eval_batch_size,
         predict_batch_size=h_params.predict_batch_size)
 
+    return model_fn, estimator
+
+
+def ner_train(h_params: HParams, estimator, processor):
+    train_examples = None
+    num_train_steps = None
+    num_warmup_steps = None
+
+    if h_params.do_train:
+        train_examples = processor.get_train_examples(h_params.data_dir)
+        num_train_steps = h_params.num_train_steps
+        num_warmup_steps = int(num_train_steps * h_params.warmup_proportion)
+
     tf.gfile.MakeDirs(h_params.output_dir)
+    label_list = processor.get_labels()
     if h_params.do_train:
         train_file = os.path.join(h_params.output_dir, "train.tf_record")
         filed_based_convert_examples_to_features(
@@ -470,6 +459,7 @@ def run(h_params: HParams):
         tf.logging.info("  Num examples = %d", len(train_examples))
         tf.logging.info("  Batch size = %d", h_params.train_batch_size)
         tf.logging.info("  Num steps = %d", num_train_steps)
+
         train_input_fn = file_based_input_fn_builder(
             input_file=train_file,
             seq_length=h_params.max_seq_length,
@@ -477,68 +467,108 @@ def run(h_params: HParams):
             drop_remainder=True)
         estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
 
-    if h_params.do_eval:
-        eval_examples = processor.get_dev_examples(h_params.data_dir)
-        eval_file = os.path.join(h_params.output_dir, "eval.tf_record")
-        filed_based_convert_examples_to_features(
-            eval_examples, label_list, h_params.max_seq_length, tokenizer, eval_file, h_params)
 
-        tf.logging.info("***** Running evaluation *****")
-        tf.logging.info("  Num examples = %d", len(eval_examples))
-        tf.logging.info("  Batch size = %d", h_params.eval_batch_size)
-        eval_steps = None
-        if h_params.use_tpu:
-            eval_steps = int(len(eval_examples) / h_params.eval_batch_size)
-        eval_drop_remainder = h_params.use_tpu
-        eval_input_fn = file_based_input_fn_builder(
-            input_file=eval_file,
-            seq_length=h_params.max_seq_length,
-            is_training=False,
-            drop_remainder=eval_drop_remainder)
-        result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
-        output_eval_file = os.path.join(h_params.local_dir, "eval_results.txt")
-        with open(output_eval_file, "w") as writer:
-            tf.logging.info("***** Eval results *****")
-            for key in sorted(result.keys()):
-                tf.logging.info("  %s = %s", key, str(result[key]))
-                writer.write("%s = %s\n" % (key, str(result[key])))
+def ner_eval(h_params: HParams, estimator, processor):
+    label_list = processor.get_labels()
+    tokenizer = get_tokenizer(h_params)
+
+    eval_examples = processor.get_dev_examples(h_params.data_dir)
+    eval_file = os.path.join(h_params.output_dir, "eval.tf_record")
+    filed_based_convert_examples_to_features(
+        eval_examples, label_list, h_params.max_seq_length, tokenizer, eval_file, h_params)
+
+    tf.logging.info("***** Running evaluation *****")
+    tf.logging.info("  Num examples = %d", len(eval_examples))
+    tf.logging.info("  Batch size = %d", h_params.eval_batch_size)
+    eval_steps = None
+    if h_params.use_tpu:
+        eval_steps = int(len(eval_examples) / h_params.eval_batch_size)
+    eval_drop_remainder = h_params.use_tpu
+    eval_input_fn = file_based_input_fn_builder(
+        input_file=eval_file,
+        seq_length=h_params.max_seq_length,
+        is_training=False,
+        drop_remainder=eval_drop_remainder)
+    result = estimator.evaluate(input_fn=eval_input_fn, steps=eval_steps)
+    output_eval_file = os.path.join(h_params.local_dir, "eval_results.txt")
+    with open(output_eval_file, "w") as writer:
+        tf.logging.info("***** Eval results *****")
+        for key in sorted(result.keys()):
+            tf.logging.info("  %s = %s", key, str(result[key]))
+            writer.write("%s = %s\n" % (key, str(result[key])))
+
+
+def ner_pred(h_params: HParams, estimator, processor):
+    h_params = h_params._replace(use_tpu=False)
+    label_list = processor.get_labels()
+    tokenizer = get_tokenizer(h_params)
+
+    token_path = os.path.join(h_params.local_dir, "token_test.txt")
+    with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
+        label2id = pickle.load(rf)
+        id2label = {value: key for key, value in label2id.items()}
+    if os.path.exists(token_path):
+        os.remove(token_path)
+    predict_examples = processor.get_test_examples(h_params.data_dir)
+
+    predict_file = os.path.join(h_params.output_dir, "predict.tf_record")
+    filed_based_convert_examples_to_features(predict_examples, label_list,
+                                             h_params.max_seq_length, tokenizer,
+                                             predict_file, h_params, mode="test")
+
+    tf.logging.info("***** Running prediction*****")
+    tf.logging.info("  Num examples = %d", len(predict_examples))
+    tf.logging.info("  Batch size = %d", h_params.predict_batch_size)
+
+    if h_params.use_tpu:
+        # Warning: According to tpu_estimator.py Prediction on TPU is an
+        # experimental feature and hence not supported here
+        tf.logging.warning("Prediction in TPU not supported")
+
+    predict_drop_remainder = h_params.use_tpu
+    predict_input_fn = file_based_input_fn_builder(
+        input_file=predict_file,
+        seq_length=h_params.max_seq_length,
+        is_training=False,
+        drop_remainder=predict_drop_remainder)
+
+    result = estimator.predict(input_fn=predict_input_fn)
+
+    result = list(result)
+    result = [pred['predictions'] for pred in result]
+    return result
+
+
+def run(h_params: HParams):
+    tf.logging.set_verbosity(tf.logging.INFO)
+    processors = {
+        "ner": NerProcessor
+    }
+
+    bert_config = modeling.BertConfig.from_json_file(h_params.bert_config_file)
+
+    if h_params.max_seq_length > bert_config.max_position_embeddings:
+        raise ValueError(
+            "Cannot use sequence length %d because the BERT model "
+            "was only trained up to sequence length %d" %
+            (h_params.max_seq_length, bert_config.max_position_embeddings))
+
+    processor = processors['ner'](h_params)
+
+    if h_params.task == 'intent':
+        from improv.my_classifier import get_model_fn_and_estimator
+        model_fn, estimator = get_model_fn_and_estimator(h_params)
+    else:
+        model_fn, estimator = get_ner_model_fn_and_estimator(h_params, processor)
+
+    if h_params.do_train:
+        ner_train(h_params, estimator, processor)
+
+    if h_params.do_eval:
+        ner_eval(h_params, estimator, processor)
 
     if h_params.do_predict:
-        h_params = h_params._replace(use_tpu=False)
-
-        token_path = os.path.join(h_params.local_dir, "token_test.txt")
-        with open(os.path.join(h_params.local_dir, 'label2id.pkl'), 'rb') as rf:
-            label2id = pickle.load(rf)
-            id2label = {value: key for key, value in label2id.items()}
-        if os.path.exists(token_path):
-            os.remove(token_path)
-        predict_examples = processor.get_test_examples(h_params.data_dir)
-
-        predict_file = os.path.join(h_params.output_dir, "predict.tf_record")
-        filed_based_convert_examples_to_features(predict_examples, label_list,
-                                                 h_params.max_seq_length, tokenizer,
-                                                 predict_file, h_params, mode="test")
-
-        tf.logging.info("***** Running prediction*****")
-        tf.logging.info("  Num examples = %d", len(predict_examples))
-        tf.logging.info("  Batch size = %d", h_params.predict_batch_size)
-
-        if h_params.use_tpu:
-            # Warning: According to tpu_estimator.py Prediction on TPU is an
-            # experimental feature and hence not supported here
-            tf.logging.warning("Prediction in TPU not supported")
-
-        predict_drop_remainder = h_params.use_tpu
-        predict_input_fn = file_based_input_fn_builder(
-            input_file=predict_file,
-            seq_length=h_params.max_seq_length,
-            is_training=False,
-            drop_remainder=predict_drop_remainder)
-
-        result = estimator.predict(input_fn=predict_input_fn)
-
-        result = list(result)
-        result = [pred['predictions'] for pred in result]
+        result = ner_pred(h_params, estimator, processor)
         return result
 
 
