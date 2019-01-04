@@ -33,5 +33,4 @@ intents weighted f1: 0.724  # vanilla BERT code 1000 train steps batch size 8
 entities weighted f1: 0.79
 
 ## rasa-spacy
-intents weighted f1: 0.541
-
+intents weighted f1: 0.674

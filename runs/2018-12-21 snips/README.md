@@ -20,5 +20,5 @@ intents weighted f1: 0.0  # second run, all predictions <0>
 ## entity only
 entities weighted f1: 0.837
 
-## rasa spacy
+# rasa spacy
 intents weighted f1: 0.991
