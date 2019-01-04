@@ -3,7 +3,6 @@ corpus = webapplications
 num_train_steps = 250
 train_batch_size = 32
 n_train_examples = 29
-n_epochs = 250 * 32 / 29 = 276
 n_eval_examples = 58
 ```
 

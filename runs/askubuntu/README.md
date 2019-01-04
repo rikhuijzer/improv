@@ -3,7 +3,6 @@ corpus = askubuntu
 num_train_steps = 250
 train_batch_size = 32
 n_train_examples = 52
-n_epochs = 250 * 32 / 52 = 154
 n_eval_examples = 108
 ```
 
