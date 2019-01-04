@@ -17,7 +17,7 @@ intents weighted f1: 0.532
 
 entities weighted f1: 0.809
 
-### step 1500 with train batch size 8
+### (OMMITTED FROM REPORT) step 1500 with train batch size 8  
 intents weighted f1: 0.679
 
 entities weighted f1: 0.837
@@ -31,6 +31,9 @@ intents weighted f1: 0.724  # vanilla BERT code 1000 train steps batch size 8
 
 ## entity only
 entities weighted f1: 0.79
+
+### steps 1000 with train batch size 8
+entities weighted f1: 0.799
 
 ## rasa-spacy
 intents weighted f1: 0.674
