@@ -23,9 +23,8 @@ def convert_annotated_text(annotated: str) -> str:
 
 def convert_line_message(line: List[str]) -> Message:
     """Return message without entities. Good enough for now."""
-
-    # debug
-    print('convert_line_message line: ' + str(line))
+    if len(line) < 2:
+        raise AssertionError('Line should be a list containing at least [sentence, intent], got {}'.format(line))
 
     message = Message.build(text=convert_annotated_text(line[0]), intent=line[1], entities=[])
     if len(line) == 3:
