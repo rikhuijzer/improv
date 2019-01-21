@@ -23,6 +23,10 @@ def convert_annotated_text(annotated: str) -> str:
 
 def convert_line_message(line: List[str]) -> Message:
     """Return message without entities. Good enough for now."""
+
+    # debug
+    print('convert_line_message line: ' + line)
+
     message = Message.build(text=convert_annotated_text(line[0]), intent=line[1], entities=[])
     if len(line) == 3:
         message.data['training'] = line[2] == 'True'
